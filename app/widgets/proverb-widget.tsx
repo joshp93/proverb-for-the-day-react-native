@@ -7,6 +7,7 @@ export interface ProverbWidgetProps {
 
 export const ProverbWidget = ({ proverb }: ProverbWidgetProps) => (
   <VoltraAndroid.Box
+    deepLinkUrl="proverbfortheday://"
     style={{
       padding: 16,
       backgroundColor: "#E6F4FE",
