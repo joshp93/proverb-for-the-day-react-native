@@ -41,14 +41,14 @@
         }
       ],
       [
-        "voltra",
+        "voltra/app.plugin.js",
         {
           "android": {
             "widgets": [
               {
                 "id": "proverb_widget",
                 "displayName": "Proverb of the Day",
-                "description": "Display today's proverb",
+                "description": "Display the Proverb of the day",
                 "minCellWidth": 2,
                 "minCellHeight": 2,
                 "targetCellWidth": 2,
