@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.proverbfortheday.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -36,6 +37,24 @@
           "backgroundColor": "#ffffff",
           "dark": {
             "backgroundColor": "#000000"
+          }
+        }
+      ],
+      [
+        "voltra",
+        {
+          "android": {
+            "widgets": [
+              {
+                "id": "proverb_widget",
+                "displayName": "Proverb of the Day",
+                "description": "Display today's proverb",
+                "minCellWidth": 2,
+                "minCellHeight": 2,
+                "targetCellWidth": 2,
+                "targetCellHeight": 2
+              }
+            ]
           }
         }
       ]

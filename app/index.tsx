@@ -1,10 +1,19 @@
 import { Stack } from "expo-router";
 import { View } from "react-native";
+import { useEffect } from "react";
 import { Text } from "./components/themed-text";
+import { ProverbCard } from "./components/proverb-card";
 import { useProverbForTheDay } from "./hooks/useProverbForTheDay";
+import { updateProverbWidget } from "./widgets";
 
 export default function Index() {
   const { proverb, loading, error } = useProverbForTheDay();
+
+  useEffect(() => {
+    if (proverb) {
+      updateProverbWidget(proverb);
+    }
+  }, [proverb]);
 
   return (
     <>
@@ -31,18 +40,7 @@ export default function Index() {
           </Text>
         )}
         {error && <Text>{error}</Text>}
-        {proverb && !loading && !error && (
-          <View>
-            <Text
-              style={{
-                fontSize: 40,
-                fontStyle: "italic",
-              }}
-            >
-              {proverb.proverb}
-            </Text>
-          </View>
-        )}
+        {proverb && !loading && !error && <ProverbCard proverb={proverb} />}
       </View>
     </>
   );
