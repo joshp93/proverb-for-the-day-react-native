@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ProverbForTheDay",
+    "name": "Proverb for the Day",
     "slug": "ProverbForTheDay",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -47,7 +47,7 @@
             "widgets": [
               {
                 "id": "proverb_widget",
-                "displayName": "Proverb of the Day",
+                "displayName": "Proverb for the Day",
                 "description": "Display the Proverb of the day",
                 "minCellWidth": 2,
                 "minCellHeight": 2,
