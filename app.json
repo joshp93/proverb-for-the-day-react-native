@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Proverb for the Day",
-    "slug": "ProverbForTheDay",
+    "slug": "proverb-for-the-day",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -62,6 +62,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "aa785a9f-d97f-4f66-b56f-18cac9e11bf7"
+      }
+    },
+    "owner": "josh-pearson-reeds-org"
   }
 }
