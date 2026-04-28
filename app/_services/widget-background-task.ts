@@ -1,4 +1,4 @@
-import * as BackgroundFetch from 'expo-background-fetch';
+import * as BackgroundTask from 'expo-background-task';
 import * as TaskManager from 'expo-task-manager';
 import { getProverbForTheDay } from '../_api/proverbs';
 import { saveProverbForWidget } from './widget-storage';
@@ -22,19 +22,17 @@ export async function registerWidgetUpdateTask(): Promise<void> {
         const proverb = await getProverbForTheDay();
         await saveProverbForWidget(proverb);
         console.log('Widget updated successfully with proverb:', proverb.ref);
-        return BackgroundFetch.BackgroundFetchResult.NewData;
+        return BackgroundTask.BackgroundTaskResult.Success;
       } catch (error) {
         console.error('Error in widget background update task:', error);
-        return BackgroundFetch.BackgroundFetchResult.Failed;
+        return BackgroundTask.BackgroundTaskResult.Failed;
       }
     });
 
     // If not already registered, register and run immediately
     if (!isAlreadyRegistered) {
-      await BackgroundFetch.registerTaskAsync(WIDGET_UPDATE_TASK, {
+      await BackgroundTask.registerTaskAsync(WIDGET_UPDATE_TASK, {
         minimumInterval: 60 * 60 * 24,
-        stopOnTerminate: false,
-        startOnBoot: true,
       });
 
       // Run immediately after first registration
@@ -54,7 +52,7 @@ export async function registerWidgetUpdateTask(): Promise<void> {
  */
 export async function unregisterWidgetUpdateTask(): Promise<void> {
   try {
-    await BackgroundFetch.unregisterTaskAsync(WIDGET_UPDATE_TASK);
+    await TaskManager.unregisterTaskAsync(WIDGET_UPDATE_TASK);
     console.log('Widget update task unregistered');
   } catch (error) {
     console.error('Failed to unregister widget update task:', error);
@@ -67,8 +65,7 @@ export async function unregisterWidgetUpdateTask(): Promise<void> {
  */
 export async function isWidgetTaskRegistered(): Promise<boolean> {
   try {
-    const tasks = await BackgroundFetch.getRegisteredTasksAsync();
-    return tasks.some((task) => task.taskName === WIDGET_UPDATE_TASK);
+    return await TaskManager.isTaskRegisteredAsync(WIDGET_UPDATE_TASK);
   } catch (error) {
     console.error('Error checking widget task registration:', error);
     return false;
