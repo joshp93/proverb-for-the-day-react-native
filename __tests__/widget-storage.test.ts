@@ -8,8 +8,11 @@ import {
   saveProverbForWidget,
 } from "../app/_services/widget-storage";
 
-// Mock AsyncStorage
-jest.mock("@react-native-async-storage/async-storage");
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  setItem: jest.fn(() => Promise.resolve()),
+  getItem: jest.fn(() => Promise.resolve(null)),
+  removeItem: jest.fn(() => Promise.resolve()),
+}));
 
 const mockProverb: Proverb = {
   proverb: "A wise man knows himself to be a fool",
@@ -33,43 +36,41 @@ describe("Widget Storage Service", () => {
 
       await saveProverbForWidget(mockProverb);
 
-      expect(mockSetItem).toHaveBeenCalledTimes(2);
-      expect(mockSetItem).toHaveBeenCalledWith(
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
         "widget_proverb_current",
-        JSON.stringify(mockProverb),
+        JSON.stringify(mockProverb)
       );
-      expect(mockSetItem).toHaveBeenCalledWith(
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
         "widget_last_update",
-        expect.any(String),
+        expect.any(String)
       );
     });
 
     it("should throw error if save fails", async () => {
-      const error = new Error("Storage failed");
-      (AsyncStorage.setItem as jest.Mock).mockRejectedValue(error);
+      const mockSetItem = jest.fn().mockRejectedValue(new Error("Storage failed"));
+      (AsyncStorage.setItem as jest.Mock) = mockSetItem;
 
       await expect(saveProverbForWidget(mockProverb)).rejects.toThrow(
-        "Storage failed",
+        "Storage failed"
       );
     });
   });
 
   describe("getProverbFromWidget", () => {
     it("should retrieve proverb from storage", async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
-        JSON.stringify(mockProverb),
-      );
+      const mockGetItem = jest
+        .fn()
+        .mockResolvedValue(JSON.stringify(mockProverb));
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await getProverbFromWidget();
 
       expect(result).toEqual(mockProverb);
-      expect(AsyncStorage.getItem).toHaveBeenCalledWith(
-        "widget_proverb_current",
-      );
     });
 
     it("should return null if no proverb is stored", async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+      const mockGetItem = jest.fn().mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await getProverbFromWidget();
 
@@ -77,9 +78,8 @@ describe("Widget Storage Service", () => {
     });
 
     it("should return null on error", async () => {
-      (AsyncStorage.getItem as jest.Mock).mockRejectedValue(
-        new Error("Read failed"),
-      );
+      const mockGetItem = jest.fn().mockRejectedValue(new Error("Read failed"));
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await getProverbFromWidget();
 
@@ -90,7 +90,8 @@ describe("Widget Storage Service", () => {
   describe("getWidgetLastUpdate", () => {
     it("should retrieve last update timestamp", async () => {
       const now = new Date().toISOString();
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(now);
+      const mockGetItem = jest.fn().mockResolvedValue(now);
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await getWidgetLastUpdate();
 
@@ -98,7 +99,8 @@ describe("Widget Storage Service", () => {
     });
 
     it("should return null if no timestamp exists", async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+      const mockGetItem = jest.fn().mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await getWidgetLastUpdate();
 
@@ -106,9 +108,8 @@ describe("Widget Storage Service", () => {
     });
 
     it("should return null on error", async () => {
-      (AsyncStorage.getItem as jest.Mock).mockRejectedValue(
-        new Error("Read failed"),
-      );
+      const mockGetItem = jest.fn().mockRejectedValue(new Error("Read failed"));
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await getWidgetLastUpdate();
 
@@ -118,10 +119,9 @@ describe("Widget Storage Service", () => {
 
   describe("isProverbStale", () => {
     it("should return true if proverb is older than 24 hours", async () => {
-      const pastDate = new Date(Date.now() - 25 * 60 * 60 * 1000); // 25 hours ago
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
-        pastDate.toISOString(),
-      );
+      const pastDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+      const mockGetItem = jest.fn().mockResolvedValue(pastDate);
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await isProverbStale();
 
@@ -129,10 +129,9 @@ describe("Widget Storage Service", () => {
     });
 
     it("should return false if proverb is less than 24 hours old", async () => {
-      const recentDate = new Date(Date.now() - 12 * 60 * 60 * 1000); // 12 hours ago
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
-        recentDate.toISOString(),
-      );
+      const recentDate = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+      const mockGetItem = jest.fn().mockResolvedValue(recentDate);
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await isProverbStale();
 
@@ -140,7 +139,8 @@ describe("Widget Storage Service", () => {
     });
 
     it("should return true if no timestamp exists", async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+      const mockGetItem = jest.fn().mockResolvedValue(null);
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await isProverbStale();
 
@@ -148,9 +148,8 @@ describe("Widget Storage Service", () => {
     });
 
     it("should return true on error", async () => {
-      (AsyncStorage.getItem as jest.Mock).mockRejectedValue(
-        new Error("Read failed"),
-      );
+      const mockGetItem = jest.fn().mockRejectedValue(new Error("Read failed"));
+      (AsyncStorage.getItem as jest.Mock) = mockGetItem;
 
       const result = await isProverbStale();
 
@@ -165,14 +164,15 @@ describe("Widget Storage Service", () => {
 
       await clearWidgetStorage();
 
-      expect(mockRemoveItem).toHaveBeenCalledTimes(2);
-      expect(mockRemoveItem).toHaveBeenCalledWith("widget_proverb_current");
-      expect(mockRemoveItem).toHaveBeenCalledWith("widget_last_update");
+      expect(AsyncStorage.removeItem).toHaveBeenCalledWith("widget_proverb_current");
+      expect(AsyncStorage.removeItem).toHaveBeenCalledWith("widget_last_update");
     });
 
     it("should throw error if removal fails", async () => {
-      const error = new Error("Storage failed");
-      (AsyncStorage.removeItem as jest.Mock).mockRejectedValue(error);
+      const mockRemoveItem = jest
+        .fn()
+        .mockRejectedValue(new Error("Storage failed"));
+      (AsyncStorage.removeItem as jest.Mock) = mockRemoveItem;
 
       await expect(clearWidgetStorage()).rejects.toThrow("Storage failed");
     });

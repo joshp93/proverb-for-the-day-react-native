@@ -9,6 +9,11 @@ import * as WidgetStorage from "../app/_services/widget-storage";
 // Mock dependencies
 jest.mock("../app/_api/proverbs");
 jest.mock("../app/_services/widget-storage");
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  setItem: jest.fn(() => Promise.resolve()),
+  getItem: jest.fn(() => Promise.resolve(null)),
+  removeItem: jest.fn(() => Promise.resolve()),
+}));
 
 // Mock expo modules with manual mock setup
 jest.mock("expo-background-fetch", () => ({
