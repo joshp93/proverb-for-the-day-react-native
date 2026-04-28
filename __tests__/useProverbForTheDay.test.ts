@@ -1,18 +1,18 @@
-import { renderHook, waitFor } from '@testing-library/react-native';
-import { useProverbForTheDay } from '../app/hooks/useProverbForTheDay';
+import { renderHook, waitFor } from "@testing-library/react-native";
+import { useProverbForTheDay } from "../app/_hooks/useProverbForTheDay";
 
 global.fetch = jest.fn();
 
 const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 
-describe('useProverbForTheDay', () => {
+describe("useProverbForTheDay", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should start with loading state', () => {
+  it("should start with loading state", () => {
     mockFetch.mockImplementation(
-      () => new Promise(() => {}) as Promise<Response>
+      () => new Promise(() => {}) as Promise<Response>,
     );
 
     const { result } = renderHook(() => useProverbForTheDay());
@@ -22,10 +22,10 @@ describe('useProverbForTheDay', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('should set proverb on successful fetch', async () => {
+  it("should set proverb on successful fetch", async () => {
     const mockProverb = {
-      ref: 'Proverbs 3:5',
-      proverb: 'Trust in the LORD with all your heart',
+      ref: "Proverbs 3:5",
+      proverb: "Trust in the LORD with all your heart",
     };
 
     mockFetch.mockResolvedValueOnce({
@@ -42,8 +42,8 @@ describe('useProverbForTheDay', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('should set error on failed fetch', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+  it("should set error on failed fetch", async () => {
+    mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
     const { result } = renderHook(() => useProverbForTheDay());
 
@@ -55,10 +55,10 @@ describe('useProverbForTheDay', () => {
     expect(result.current.error).toBeTruthy();
   });
 
-  it('should not refetch on re-render', async () => {
+  it("should not refetch on re-render", async () => {
     const mockProverb = {
-      ref: 'Proverbs 3:5',
-      proverb: 'Trust in the LORD',
+      ref: "Proverbs 3:5",
+      proverb: "Trust in the LORD",
     };
 
     mockFetch.mockResolvedValueOnce({
