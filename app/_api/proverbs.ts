@@ -1,4 +1,4 @@
-import { ProverbSchema } from "../models/proverb";
+import { ProverbSchema } from "../_models/proverb";
 
 export const getProverbForTheDay = () =>
   fetch(
