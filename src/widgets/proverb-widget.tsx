@@ -1,5 +1,5 @@
 import { VoltraAndroid } from "voltra";
-import { Proverb } from "../models/proverb";
+import { Proverb } from "../../src/models/proverb";
 
 export interface ProverbWidgetProps {
   proverb: Proverb | null;

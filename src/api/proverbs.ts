@@ -6,8 +6,8 @@ export const getProverbForTheDay = () =>
       "https://8ndcvtnwf1.execute-api.eu-west-2.amazonaws.com/prod/kjv",
       {
         method: "GET",
-      }
-    )
+      },
+    ),
   )
     .then((res) => res.json())
     .then((data) => ProverbSchema.parse(data))

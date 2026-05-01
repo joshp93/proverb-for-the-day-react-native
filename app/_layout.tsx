@@ -7,7 +7,10 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-import { defineBackgroundTask, scheduleBackgroundTask } from "./background/proverb-task";
+import {
+  defineBackgroundTask,
+  scheduleBackgroundTask,
+} from "../src/background/proverb-task";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();

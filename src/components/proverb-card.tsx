@@ -1,18 +1,24 @@
-import { View, StyleSheet, ViewProps } from "react-native";
+import { StyleSheet, View, ViewProps } from "react-native";
+import { Proverb } from "../../src/models/proverb";
 import { Text } from "./themed-text";
-import { Proverb } from "../models/proverb";
 
 export interface ProverbCardProps extends ViewProps {
   proverb: Proverb;
   compact?: boolean;
 }
 
-export function ProverbCard({ proverb, compact = false, style, ...props }: ProverbCardProps) {
+export function ProverbCard({
+  proverb,
+  compact = false,
+  style,
+  ...props
+}: ProverbCardProps) {
   return (
-    <View style={[compact ? styles.compact : styles.container, style]} {...props}>
-      <Text
-        style={compact ? styles.compactText : styles.proverbText}
-      >
+    <View
+      style={[compact ? styles.compact : styles.container, style]}
+      {...props}
+    >
+      <Text style={compact ? styles.compactText : styles.proverbText}>
         {proverb.proverb}
       </Text>
     </View>

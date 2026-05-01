@@ -5,8 +5,8 @@ import {
   registerTaskAsync,
 } from "expo-background-task";
 import * as TaskManager from "expo-task-manager";
+import { updateProverbWidget } from "../../src/widgets";
 import { getProverbForTheDay } from "../api/proverbs";
-import { updateProverbWidget } from "../widgets";
 
 const TASK_NAME = "daily-proverb-fetch";
 

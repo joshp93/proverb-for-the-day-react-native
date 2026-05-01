@@ -1,12 +1,12 @@
-import {
-  registerBackgroundTask,
-  scheduleBackgroundTask,
-  defineBackgroundTask,
-} from "../app/background/proverb-task";
 import * as BackgroundTask from "expo-background-task";
 import * as TaskManager from "expo-task-manager";
-import { getProverbForTheDay } from "../app/api/proverbs";
-import { updateProverbWidget } from "../app/widgets";
+import { getProverbForTheDay } from "../src/api/proverbs";
+import {
+  defineBackgroundTask,
+  registerBackgroundTask,
+  scheduleBackgroundTask,
+} from "../src/background/proverb-task";
+import { updateProverbWidget } from "../src/widgets";
 
 jest.mock("expo-background-task", () => ({
   getStatusAsync: jest.fn(),
@@ -26,41 +26,46 @@ jest.mock("expo-task-manager", () => ({
   defineTask: jest.fn(),
 }));
 
-jest.mock("../app/api/proverbs", () => ({
+jest.mock("../src/api/proverbs", () => ({
   getProverbForTheDay: jest.fn(),
 }));
 
-jest.mock("../app/widgets", () => ({
+jest.mock("../src/widgets", () => ({
   updateProverbWidget: jest.fn(),
 }));
 
 describe("registerBackgroundTask", () => {
-  const mockGetStatusAsync = BackgroundTask.getStatusAsync as jest.MockedFunction<
-    typeof BackgroundTask.getStatusAsync
-  >;
-  const mockRegisterTaskAsync = BackgroundTask.registerTaskAsync as jest.MockedFunction<
-    typeof BackgroundTask.registerTaskAsync
-  >;
+  const mockGetStatusAsync =
+    BackgroundTask.getStatusAsync as jest.MockedFunction<
+      typeof BackgroundTask.getStatusAsync
+    >;
+  const mockRegisterTaskAsync =
+    BackgroundTask.registerTaskAsync as jest.MockedFunction<
+      typeof BackgroundTask.registerTaskAsync
+    >;
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it("should register the task when background tasks are available", async () => {
-    mockGetStatusAsync.mockResolvedValueOnce(BackgroundTask.BackgroundTaskStatus.Available);
+    mockGetStatusAsync.mockResolvedValueOnce(
+      BackgroundTask.BackgroundTaskStatus.Available,
+    );
     mockRegisterTaskAsync.mockResolvedValueOnce(undefined);
 
     await registerBackgroundTask();
 
     expect(mockGetStatusAsync).toHaveBeenCalledTimes(1);
-    expect(mockRegisterTaskAsync).toHaveBeenCalledWith(
-      "daily-proverb-fetch",
-      { minimumInterval: 60 * 24 }
-    );
+    expect(mockRegisterTaskAsync).toHaveBeenCalledWith("daily-proverb-fetch", {
+      minimumInterval: 60 * 24,
+    });
   });
 
   it("should NOT register the task when background tasks are restricted", async () => {
-    mockGetStatusAsync.mockResolvedValueOnce(BackgroundTask.BackgroundTaskStatus.Restricted);
+    mockGetStatusAsync.mockResolvedValueOnce(
+      BackgroundTask.BackgroundTaskStatus.Restricted,
+    );
 
     await registerBackgroundTask();
 
@@ -74,12 +79,14 @@ describe("scheduleBackgroundTask", () => {
     TaskManager.isTaskRegisteredAsync as jest.MockedFunction<
       typeof TaskManager.isTaskRegisteredAsync
     >;
-  const mockGetStatusAsync = BackgroundTask.getStatusAsync as jest.MockedFunction<
-    typeof BackgroundTask.getStatusAsync
-  >;
-  const mockRegisterTaskAsync = BackgroundTask.registerTaskAsync as jest.MockedFunction<
-    typeof BackgroundTask.registerTaskAsync
-  >;
+  const mockGetStatusAsync =
+    BackgroundTask.getStatusAsync as jest.MockedFunction<
+      typeof BackgroundTask.getStatusAsync
+    >;
+  const mockRegisterTaskAsync =
+    BackgroundTask.registerTaskAsync as jest.MockedFunction<
+      typeof BackgroundTask.registerTaskAsync
+    >;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -87,16 +94,19 @@ describe("scheduleBackgroundTask", () => {
 
   it("should register the background task if not already registered", async () => {
     mockIsTaskRegisteredAsync.mockResolvedValueOnce(false);
-    mockGetStatusAsync.mockResolvedValueOnce(BackgroundTask.BackgroundTaskStatus.Available);
+    mockGetStatusAsync.mockResolvedValueOnce(
+      BackgroundTask.BackgroundTaskStatus.Available,
+    );
     mockRegisterTaskAsync.mockResolvedValueOnce(undefined);
 
     await scheduleBackgroundTask();
 
-    expect(mockIsTaskRegisteredAsync).toHaveBeenCalledWith("daily-proverb-fetch");
-    expect(mockRegisterTaskAsync).toHaveBeenCalledWith(
+    expect(mockIsTaskRegisteredAsync).toHaveBeenCalledWith(
       "daily-proverb-fetch",
-      { minimumInterval: 60 * 24 }
     );
+    expect(mockRegisterTaskAsync).toHaveBeenCalledWith("daily-proverb-fetch", {
+      minimumInterval: 60 * 24,
+    });
   });
 
   it("should NOT register if task is already registered", async () => {
@@ -136,7 +146,7 @@ describe("defineBackgroundTask", () => {
 
     expect(mockDefineTask).toHaveBeenCalledWith(
       "daily-proverb-fetch",
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 
@@ -147,11 +157,13 @@ describe("defineBackgroundTask", () => {
     };
     mockGetProverbForTheDay.mockResolvedValueOnce(mockProverb);
     mockUpdateProverbWidget.mockResolvedValueOnce(undefined);
-    
+
     let taskExecutor: () => Promise<unknown>;
-    mockDefineTask.mockImplementationOnce((_name: string, task: () => Promise<unknown>) => {
-      taskExecutor = task;
-    });
+    mockDefineTask.mockImplementationOnce(
+      (_name: string, task: () => Promise<unknown>) => {
+        taskExecutor = task;
+      },
+    );
 
     defineBackgroundTask();
     await taskExecutor!();
@@ -169,9 +181,11 @@ describe("defineBackgroundTask", () => {
     mockUpdateProverbWidget.mockResolvedValueOnce(undefined);
 
     let taskExecutor: () => Promise<unknown>;
-    mockDefineTask.mockImplementationOnce((_name: string, task: () => Promise<unknown>) => {
-      taskExecutor = task;
-    });
+    mockDefineTask.mockImplementationOnce(
+      (_name: string, task: () => Promise<unknown>) => {
+        taskExecutor = task;
+      },
+    );
 
     defineBackgroundTask();
     const result = await taskExecutor!();
@@ -182,12 +196,16 @@ describe("defineBackgroundTask", () => {
   it("should catch errors and log to console on failure", async () => {
     const error = new Error("Network error");
     mockGetProverbForTheDay.mockRejectedValueOnce(error);
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     let taskExecutor: () => Promise<unknown>;
-    mockDefineTask.mockImplementationOnce((_name: string, task: () => Promise<unknown>) => {
-      taskExecutor = task;
-    });
+    mockDefineTask.mockImplementationOnce(
+      (_name: string, task: () => Promise<unknown>) => {
+        taskExecutor = task;
+      },
+    );
 
     defineBackgroundTask();
     await taskExecutor!();
