@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "Proverb for the Day",
-    "slug": "ProverbForTheDay",
+    "name": "Lemuel",
+    "slug": "lemuel",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "proverbfortheday",
+    "scheme": "lemuel",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "icon": "./assets/images/icon.png"
     },
     "android": {
-      "package": "com.proverbfortheday.app",
+      "package": "com.lemuel.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#000000"
@@ -23,6 +23,7 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+    "description": "Get a daily proverb and take a short moment to meditate on it.",
     "plugins": [
       "expo-router",
       [
@@ -44,8 +45,8 @@
             "widgets": [
               {
                 "id": "proverb_widget",
-                "displayName": "Proverb for the Day",
-                "description": "Display the Proverb of the day",
+                "displayName": "Lemuel",
+                "description": "Get a daily proverb and take a short moment to meditate on it.",
                 "minCellWidth": 2,
                 "minCellHeight": 2,
                 "targetCellWidth": 2,
