@@ -7,12 +7,13 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect } from "react";
 import { Image, StyleSheet, View } from "react-native";
+import { AuthProvider } from "../src/auth/auth-context";
 import {
   defineBackgroundTask,
   scheduleBackgroundTask,
 } from "../src/background/proverb-task";
+import { HeaderMenu } from "../src/components/header-menu";
 
-// Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -37,23 +38,28 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
-      <Stack
-        screenOptions={{
-          headerTitleStyle: styles.defaultText,
-          headerStyle: {
-            backgroundColor: "black",
-          },
-          headerTintColor: "white",
-          headerRight: () => (
-            <Image
-              source={require("../assets/images/app-logo.png")}
-              style={{ width: 40, height: 40, resizeMode: "contain" }}
-            />
-          ),
-        }}
-      />
-    </View>
+    <AuthProvider>
+      <View style={styles.container} onLayout={onLayoutRootView}>
+        <Stack
+          screenOptions={{
+            headerTitleStyle: styles.defaultText,
+            headerStyle: {
+              backgroundColor: "black",
+            },
+            headerTintColor: "white",
+            headerRight: () => (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Image
+                  source={require("../assets/images/app-logo.png")}
+                  style={{ width: 40, height: 40, resizeMode: "contain" }}
+                />
+                <HeaderMenu />
+              </View>
+            ),
+          }}
+        />
+      </View>
+    </AuthProvider>
   );
 }
 
@@ -65,7 +71,6 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito_400Regular",
   },
   defaultContent: {
-    // This will be inherited by all screens
     fontFamily: "Nunito_400Regular",
   },
 });
