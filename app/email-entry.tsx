@@ -1,14 +1,13 @@
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Button,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { checkUser } from "../src/api/auth";
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -34,24 +33,18 @@ export default function EmailEntry() {
     return true;
   };
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (!validateField(email)) {
       return;
     }
 
-    setLoading(true);
-    const exists = await checkUser(email);
-    setLoading(false);
-
-    if (exists) {
-      router.push({ pathname: "/sign-in", params: { email } });
-    } else {
-      router.push({ pathname: "/sign-up", params: { email } });
-    }
+    router.push({ pathname: "/sign-in", params: { email } });
   };
 
   return (
-    <View style={styles.container}>
+    <>
+      <Stack.Screen options={{ title: "Welcome" }} />
+      <View style={styles.container}>
       <Text style={styles.title}>Welcome</Text>
       <Text style={styles.subtitle}>Enter your email to continue</Text>
 
@@ -68,13 +61,18 @@ export default function EmailEntry() {
         autoComplete="email"
       />
 
-      <Button
-        title={loading ? "" : "Continue"}
+      <Pressable
+        style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleContinue}
         disabled={loading}
-      />
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "" : "Continue"}
+        </Text>
+      </Pressable>
       {loading && <ActivityIndicator style={styles.loader} />}
-    </View>
+      </View>
+    </>
   );
 }
 
@@ -118,5 +116,19 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginTop: 10,
+  },
+  button: {
+    backgroundColor: "black",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

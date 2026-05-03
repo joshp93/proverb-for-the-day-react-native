@@ -1,7 +1,7 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { confirmSignUp } from "../src/api/auth";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { verifyAccount } from "../src/api/auth";
 
 export default function ConfirmSignUp() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function ConfirmSignUp() {
     }
 
     setLoading(true);
-    const result = await confirmSignUp(email, code);
+    const result = await verifyAccount(email, code);
     setLoading(false);
 
     if (result.success) {
@@ -65,7 +65,9 @@ export default function ConfirmSignUp() {
   };
 
   return (
-    <View style={styles.container}>
+    <>
+      <Stack.Screen options={{ title: "Confirm Sign Up" }} />
+      <View style={styles.container}>
       <Text style={styles.title}>Confirm Sign Up</Text>
       <Text style={styles.subtitle}>
         Enter the 6-digit code sent to your email
@@ -103,12 +105,17 @@ export default function ConfirmSignUp() {
         <Text style={styles.fieldError}>{fieldErrors.code}</Text>
       ) : null}
 
-      <Button
-        title={loading ? "Verifying..." : "Verify"}
+      <Pressable
+        style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleConfirm}
         disabled={loading}
-      />
-    </View>
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Verifying..." : "Verify"}
+        </Text>
+      </Pressable>
+      </View>
+    </>
   );
 }
 
@@ -162,5 +169,19 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "#dc3545",
+  },
+  button: {
+    backgroundColor: "black",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

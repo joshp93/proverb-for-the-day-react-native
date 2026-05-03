@@ -1,100 +1,102 @@
-const BASE_URL =
-  "https://8ndcvtnwf1.execute-api.eu-west-2.amazonaws.com/prod/auth";
+import {
+  confirmSignUp,
+  fetchAuthSession,
+  getCurrentUser,
+  signIn,
+  signOut,
+  signUp,
+} from "@aws-amplify/auth";
 
-export interface SignUpResponse {
-  success: boolean;
-  message?: string;
+export interface AppAuthUser {
+  userId: string;
+  username: string;
+  email: string;
 }
 
-export interface SignInResponse {
-  success: boolean;
-  token?: string;
-  message?: string;
+export async function checkUserExists(email: string): Promise<boolean> {
+  try {
+    const user = await getCurrentUser();
+    return user.username === email;
+  } catch {
+    return false;
+  }
 }
 
-export async function signUp(
+export async function createAccount(
   email: string,
   password: string,
-): Promise<SignUpResponse> {
-  const response = await fetch(`${BASE_URL}/sign-up`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (response.status === 200) {
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    await signUp({
+      username: email,
+      password,
+      options: {
+        userAttributes: {
+          email,
+        },
+      },
+    });
     return { success: true };
+  } catch (error: unknown) {
+    const err = error as Error;
+    return { success: false, message: err.message };
   }
-
-  return {
-    success: false,
-    message: "Please try again",
-  };
 }
 
-export async function confirmSignUp(
+export async function verifyAccount(
   email: string,
   code: string,
 ): Promise<{ success: boolean; message?: string }> {
-  const response = await fetch(`${BASE_URL}/confirm-sign-up`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, code }),
-  });
-
-  if (response.status === 200) {
+  try {
+    await confirmSignUp({
+      username: email,
+      confirmationCode: code,
+    });
     return { success: true };
+  } catch (error: unknown) {
+    const err = error as Error;
+    return { success: false, message: err.message };
   }
-
-  return {
-    success: false,
-    message: "Invalid code. Please try again.",
-  };
 }
 
-export async function signIn(
+export async function login(
   email: string,
   password: string,
-): Promise<SignInResponse> {
-  const response = await fetch(`${BASE_URL}/sign-in`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (response.status === 200) {
-    const data = await response.json();
-    return {
-      success: true,
-      token: data.token || data.jwt || data.accessToken,
-    };
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    await signIn({
+      username: email,
+      password,
+    });
+    return { success: true };
+  } catch (error: unknown) {
+    const err = error as Error;
+    return { success: false, message: err.message };
   }
-
-  return {
-    success: false,
-    message: "Invalid email or password",
-  };
 }
 
-export async function checkUser(email: string): Promise<boolean> {
-  const response = await fetch(`${BASE_URL}/check-user`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
-  });
+export async function logout(): Promise<void> {
+  await signOut();
+}
 
-  if (response.status === 200) {
-    const data = await response.json();
-    return data.exists === true;
+export async function getAuthenticatedUser(): Promise<AppAuthUser | null> {
+  try {
+    const user = await getCurrentUser();
+    return {
+      userId: user.userId,
+      username: user.username,
+      email: user.username,
+    };
+  } catch {
+    return null;
   }
+}
 
-  return false;
+export async function getIdToken(): Promise<string | null> {
+  try {
+    const session = await fetchAuthSession();
+    return session.tokens?.idToken?.toString() ?? null;
+  } catch {
+    return null;
+  }
 }

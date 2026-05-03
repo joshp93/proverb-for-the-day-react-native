@@ -1,7 +1,7 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { signIn } from "../src/api/auth";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { login } from "../src/api/auth";
 import { useAuth } from "../src/auth/auth-context";
 
 const isValidEmail = (email: string) => {
@@ -12,7 +12,7 @@ const isValidEmail = (email: string) => {
 export default function SignIn() {
   const router = useRouter();
   const params = useLocalSearchParams<{ email?: string }>();
-  const { setUser } = useAuth();
+  const { refreshUser } = useAuth();
   const [email, setEmail] = useState(params.email || "");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,11 +52,11 @@ export default function SignIn() {
     }
 
     setLoading(true);
-    const result = await signIn(email, password);
+    const result = await login(email, password);
     setLoading(false);
 
-    if (result.success && result.token) {
-      setUser({ email, token: result.token });
+    if (result.success) {
+      await refreshUser();
       router.back();
     } else {
       setFormError(result.message || "Sign in failed. Please try again.");
@@ -64,49 +64,53 @@ export default function SignIn() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign In</Text>
+    <>
+      <Stack.Screen options={{ title: "Sign In" }} />
+      <View style={styles.container}>
+        <Text style={styles.title}>Sign In</Text>
 
-      {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
-      <TextInput
-        style={[styles.input, fieldErrors.email ? styles.inputError : null]}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        onBlur={() => validateField("email", email)}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        autoComplete="email"
-      />
-      {fieldErrors.email ? (
-        <Text style={styles.fieldError}>{fieldErrors.email}</Text>
-      ) : null}
+        <TextInput
+          style={[styles.input, fieldErrors.email ? styles.inputError : null]}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          onBlur={() => validateField("email", email)}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          autoComplete="email"
+        />
+        {fieldErrors.email ? (
+          <Text style={styles.fieldError}>{fieldErrors.email}</Text>
+        ) : null}
 
-      <TextInput
-        style={[styles.input, fieldErrors.password ? styles.inputError : null]}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        onBlur={() => validateField("password", password)}
-        secureTextEntry
-      />
-      {fieldErrors.password ? (
-        <Text style={styles.fieldError}>{fieldErrors.password}</Text>
-      ) : null}
+        <TextInput
+          style={[
+            styles.input,
+            fieldErrors.password ? styles.inputError : null,
+          ]}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          onBlur={() => validateField("password", password)}
+          secureTextEntry
+        />
+        {fieldErrors.password ? (
+          <Text style={styles.fieldError}>{fieldErrors.password}</Text>
+        ) : null}
 
-      <Button
-        title={loading ? "Signing in..." : "Sign In"}
-        onPress={handleSignIn}
-        disabled={loading}
-      />
-
-      <View style={styles.links}>
-        <Text style={styles.link} onPress={() => router.push("/sign-up")}>
-          Don&apos;t have an account? Sign Up
-        </Text>
+        <Pressable
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleSignIn}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "Signing in..." : "Sign In"}
+          </Text>
+        </Pressable>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -147,6 +151,20 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "#dc3545",
+  },
+  button: {
+    backgroundColor: "black",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
   links: {
     marginTop: 20,

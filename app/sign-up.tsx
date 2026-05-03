@@ -1,7 +1,7 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { signUp } from "../src/api/auth";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { createAccount } from "../src/api/auth";
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,7 +75,7 @@ export default function SignUp() {
     }
 
     setLoading(true);
-    const result = await signUp(email, password);
+    const result = await createAccount(email, password);
     setLoading(false);
 
     if (result.success) {
@@ -90,72 +90,76 @@ export default function SignUp() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
+    <>
+      <Stack.Screen options={{ title: "Sign Up" }} />
+      <View style={styles.container}>
+        <Text style={styles.title}>Sign Up</Text>
 
-      {formError ? <Text style={styles.formError}>{formError}</Text> : null}
-      {successMessage ? (
-        <Text style={styles.success}>{successMessage}</Text>
-      ) : null}
+        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+        {successMessage ? (
+          <Text style={styles.success}>{successMessage}</Text>
+        ) : null}
 
-      <TextInput
-        style={[styles.input, fieldErrors.email ? styles.inputError : null]}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        onBlur={() => validateField("email", email)}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        autoComplete="email"
-      />
-      {fieldErrors.email ? (
-        <Text style={styles.fieldError}>{fieldErrors.email}</Text>
-      ) : null}
+        <TextInput
+          style={[styles.input, fieldErrors.email ? styles.inputError : null]}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          onBlur={() => validateField("email", email)}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          autoComplete="email"
+        />
+        {fieldErrors.email ? (
+          <Text style={styles.fieldError}>{fieldErrors.email}</Text>
+        ) : null}
 
-      <TextInput
-        style={[styles.input, fieldErrors.password ? styles.inputError : null]}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        onBlur={() => validateField("password", password)}
-        secureTextEntry
-      />
-      {fieldErrors.password ? (
-        <Text style={styles.fieldError}>{fieldErrors.password}</Text>
-      ) : null}
+        <TextInput
+          style={[
+            styles.input,
+            fieldErrors.password ? styles.inputError : null,
+          ]}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          onBlur={() => validateField("password", password)}
+          secureTextEntry
+        />
+        {fieldErrors.password ? (
+          <Text style={styles.fieldError}>{fieldErrors.password}</Text>
+        ) : null}
 
-      <TextInput
-        style={[
-          styles.input,
-          fieldErrors.confirmPassword ? styles.inputError : null,
-        ]}
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        onBlur={() =>
-          validateField("confirmPassword", confirmPassword, {
-            password,
-            confirmPassword,
-          })
-        }
-        secureTextEntry
-      />
-      {fieldErrors.confirmPassword ? (
-        <Text style={styles.fieldError}>{fieldErrors.confirmPassword}</Text>
-      ) : null}
+        <TextInput
+          style={[
+            styles.input,
+            fieldErrors.confirmPassword ? styles.inputError : null,
+          ]}
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          onBlur={() =>
+            validateField("confirmPassword", confirmPassword, {
+              password,
+              confirmPassword,
+            })
+          }
+          secureTextEntry
+        />
+        {fieldErrors.confirmPassword ? (
+          <Text style={styles.fieldError}>{fieldErrors.confirmPassword}</Text>
+        ) : null}
 
-      <Button
-        title={loading ? "Signing up..." : "Sign Up"}
-        onPress={handleSignUp}
-        disabled={loading}
-      />
-
-      <View style={styles.links}>
-        <Text style={styles.link} onPress={() => router.back()}>
-          Already have an account? Sign In
-        </Text>
+        <Pressable
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleSignUp}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "Signing up..." : "Sign Up"}
+          </Text>
+        </Pressable>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -202,6 +206,20 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "#dc3545",
+  },
+  button: {
+    backgroundColor: "black",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
   links: {
     marginTop: 20,
