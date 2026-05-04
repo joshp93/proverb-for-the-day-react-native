@@ -7,6 +7,7 @@ import {
   scheduleBackgroundTask,
 } from "../src/background/proverb-task";
 import { updateProverbWidget } from "../src/widgets";
+import type { TaskManagerTaskExecutor } from "expo-task-manager";
 
 jest.mock("expo-background-task", () => ({
   getStatusAsync: jest.fn(),
@@ -158,15 +159,15 @@ describe("defineBackgroundTask", () => {
     mockGetProverbForTheDay.mockResolvedValueOnce(mockProverb);
     mockUpdateProverbWidget.mockResolvedValueOnce(undefined);
 
-    let taskExecutor: () => Promise<unknown>;
+    let taskExecutor: TaskManagerTaskExecutor;
     mockDefineTask.mockImplementationOnce(
-      (_name: string, task: () => Promise<unknown>) => {
+      (_name: string, task: TaskManagerTaskExecutor) => {
         taskExecutor = task;
       },
     );
 
     defineBackgroundTask();
-    await taskExecutor!();
+    await taskExecutor!({ data: {}, error: null, executionInfo: { eventId: "", taskName: "" } });
 
     expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
     expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
@@ -180,15 +181,15 @@ describe("defineBackgroundTask", () => {
     mockGetProverbForTheDay.mockResolvedValueOnce(mockProverb);
     mockUpdateProverbWidget.mockResolvedValueOnce(undefined);
 
-    let taskExecutor: () => Promise<unknown>;
+    let taskExecutor: TaskManagerTaskExecutor;
     mockDefineTask.mockImplementationOnce(
-      (_name: string, task: () => Promise<unknown>) => {
+      (_name: string, task: TaskManagerTaskExecutor) => {
         taskExecutor = task;
       },
     );
 
     defineBackgroundTask();
-    const result = await taskExecutor!();
+    const result = await taskExecutor!({ data: {}, error: null, executionInfo: { eventId: "", taskName: "" } });
 
     expect(result).toBe(BackgroundTask.BackgroundTaskResult.Success);
   });
@@ -200,15 +201,15 @@ describe("defineBackgroundTask", () => {
       .spyOn(console, "error")
       .mockImplementation(() => {});
 
-    let taskExecutor: () => Promise<unknown>;
+    let taskExecutor: TaskManagerTaskExecutor;
     mockDefineTask.mockImplementationOnce(
-      (_name: string, task: () => Promise<unknown>) => {
+      (_name: string, task: TaskManagerTaskExecutor) => {
         taskExecutor = task;
       },
     );
 
     defineBackgroundTask();
-    await taskExecutor!();
+    await taskExecutor!({ data: {}, error: null, executionInfo: { eventId: "", taskName: "" } });
 
     expect(consoleSpy).toHaveBeenCalledWith("Background task failed:", error);
   });

@@ -4,17 +4,11 @@
     "strict": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+      "@/*": ["./*"]
+    },
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types"]
   },
-  "include": [
-    "app/**/*.{ts,tsx}",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ],
-  "exclude": [
-    "__tests__/**/*"
-  ]
+  "include": ["app/**/*.{ts,tsx}", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["node_modules", "android", "expo"]
 }
