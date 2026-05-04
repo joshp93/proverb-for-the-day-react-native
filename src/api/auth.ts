@@ -15,9 +15,13 @@ export interface AppAuthUser {
 
 export async function checkUserExists(email: string): Promise<boolean> {
   try {
+    console.log("[Auth API] Checking if user exists...");
     const user = await getCurrentUser();
-    return user.username === email;
-  } catch {
+    const exists = user.username === email;
+    console.log("[Auth API] User exists: ", exists);
+    return exists;
+  } catch (error: unknown) {
+    console.error("[Auth API] Error checking user existence", error);
     return false;
   }
 }
@@ -27,6 +31,7 @@ export async function createAccount(
   password: string,
 ): Promise<{ success: boolean; message?: string }> {
   try {
+    console.log("[Auth API] Creating new account...");
     await signUp({
       username: email,
       password,
@@ -36,8 +41,10 @@ export async function createAccount(
         },
       },
     });
+    console.log("[Auth API] Account created successfully");
     return { success: true };
   } catch (error: unknown) {
+    console.error("[Auth API] Account creation failed", error);
     const err = error as Error;
     return { success: false, message: err.message };
   }
@@ -48,12 +55,15 @@ export async function verifyAccount(
   code: string,
 ): Promise<{ success: boolean; message?: string }> {
   try {
+    console.log("[Auth API] Verifying account...");
     await confirmSignUp({
       username: email,
       confirmationCode: code,
     });
+    console.log("[Auth API] Account verified successfully");
     return { success: true };
   } catch (error: unknown) {
+    console.error("[Auth API] Account verification failed", error);
     const err = error as Error;
     return { success: false, message: err.message };
   }
@@ -64,39 +74,51 @@ export async function login(
   password: string,
 ): Promise<{ success: boolean; message?: string }> {
   try {
+    console.log("[Auth API] Attempting login...");
     await signIn({
       username: email,
       password,
     });
+    console.log("[Auth API] Login successful");
     return { success: true };
   } catch (error: unknown) {
+    console.error("[Auth API] Login failed", error);
     const err = error as Error;
     return { success: false, message: err.message };
   }
 }
 
 export async function logout(): Promise<void> {
+  console.log("[Auth API] Logging out...");
   await signOut();
+  console.log("[Auth API] Logged out");
 }
 
 export async function getAuthenticatedUser(): Promise<AppAuthUser | null> {
   try {
+    console.log("[Auth API] Getting authenticated user...");
     const user = await getCurrentUser();
+    console.log("[Auth API] User found");
     return {
       userId: user.userId,
       username: user.username,
       email: user.username,
     };
-  } catch {
+  } catch (error: unknown) {
+    console.error("[Auth API] Error getting authenticated user", error);
     return null;
   }
 }
 
 export async function getIdToken(): Promise<string | null> {
   try {
+    console.log("[Auth API] Getting ID token...");
     const session = await fetchAuthSession();
-    return session.tokens?.idToken?.toString() ?? null;
-  } catch {
+    const token = session.tokens?.idToken?.toString() ?? null;
+    console.log("[Auth API] ID token retrieved:", token ? "yes" : "no");
+    return token;
+  } catch (error: unknown) {
+    console.error("[Auth API] Error getting ID token", error);
     return null;
   }
 }

@@ -5,15 +5,15 @@ import {
 } from "@expo-google-fonts/nunito";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect, useState } from "react";
-import { Image, StyleSheet, View, Text } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { configureAmplify, isConfigured } from "../src/amplify-configuration";
+import { AuthProvider } from "../src/auth/auth-context";
 import {
   defineBackgroundTask,
   scheduleBackgroundTask,
 } from "../src/background/proverb-task";
-import { AuthProvider } from "../src/auth/auth-context";
 import { HeaderMenu } from "../src/components/header-menu";
-import { configureAmplify, isConfigured } from "../src/amplify-configuration";
 
 SplashScreen.preventAutoHideAsync();
 

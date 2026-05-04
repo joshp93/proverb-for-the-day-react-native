@@ -20,5 +20,4 @@ export function configureAmplify() {
   Amplify.configure(awsExports);
 }
 
-export const isConfigured = () =>
-  awsExports.Auth.Cognito.userPoolId !== "eu-west-2_iQM6jAUkv";
+export const isConfigured = () => !!awsExports.Auth.Cognito.userPoolId;

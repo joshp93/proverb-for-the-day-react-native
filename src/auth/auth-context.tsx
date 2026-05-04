@@ -34,26 +34,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     try {
+      console.log("[Auth] Checking for authenticated user...");
       const authenticatedUser = await getAuthenticatedUser();
       if (authenticatedUser) {
+        console.log("[Auth] User is authenticated, fetching ID token...");
         const token = await getIdToken();
         if (token) {
+          console.log("[Auth] User logged in successfully");
           setUser({ ...authenticatedUser, token });
+        } else {
+          console.log("[Auth] No ID token found, user is null");
+          setUser(null);
         }
       } else {
+        console.log("[Auth] No authenticated user found");
         setUser(null);
       }
-    } catch {
+    } catch (error: unknown) {
+      console.error("[Auth] Error checking auth state", error);
       setUser(null);
     }
   }, []);
 
   useEffect(() => {
-    refreshUser().finally(() => setLoading(false));
+    console.log("[Auth] Initializing auth state...");
+    refreshUser().finally(() => {
+      console.log("[Auth] Auth initialization complete");
+      setLoading(false);
+    });
   }, [refreshUser]);
 
   const signOut = useCallback(async () => {
+    console.log("[Auth] Signing out user...");
     await amplifyLogout();
+    console.log("[Auth] User signed out");
     setUser(null);
   }, []);
 
