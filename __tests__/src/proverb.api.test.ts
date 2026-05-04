@@ -1,4 +1,4 @@
-import { getProverbForTheDay } from "../src/api/proverbs";
+import { getProverbForTheDay } from "../../src/api/proverbs";
 
 global.fetch = jest.fn();
 

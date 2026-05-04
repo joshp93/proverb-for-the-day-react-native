@@ -25,6 +25,7 @@ export default function SignUp() {
   const [email, setEmail] = useState(params.email || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -123,28 +124,39 @@ export default function SignUp() {
           value={password}
           onChangeText={setPassword}
           onBlur={() => validateField("password", password)}
-          secureTextEntry
+          secureTextEntry={!showPassword}
         />
         {fieldErrors.password ? (
           <Text style={styles.fieldError}>{fieldErrors.password}</Text>
         ) : null}
 
-        <TextInput
-          style={[
-            styles.input,
-            fieldErrors.confirmPassword ? styles.inputError : null,
-          ]}
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          onBlur={() =>
-            validateField("confirmPassword", confirmPassword, {
-              password,
-              confirmPassword,
-            })
-          }
-          secureTextEntry
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              styles.passwordInput,
+              fieldErrors.confirmPassword ? styles.inputError : null,
+            ]}
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            onBlur={() =>
+              validateField("confirmPassword", confirmPassword, {
+                password,
+                confirmPassword,
+              })
+            }
+            secureTextEntry={!showPassword}
+          />
+          <Pressable
+            style={styles.showPasswordButton}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Text style={styles.showPasswordText}>
+              {showPassword ? "Hide" : "Show"}
+            </Text>
+          </Pressable>
+        </View>
         {fieldErrors.confirmPassword ? (
           <Text style={styles.fieldError}>{fieldErrors.confirmPassword}</Text>
         ) : null}
@@ -206,6 +218,23 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "#dc3545",
+  },
+  passwordContainer: {
+    position: "relative",
+  },
+  passwordInput: {
+    paddingRight: 60,
+  },
+  showPasswordButton: {
+    position: "absolute",
+    right: 15,
+    top: 0,
+    bottom: 15,
+    justifyContent: "center",
+  },
+  showPasswordText: {
+    color: "#007AFF",
+    fontSize: 16,
   },
   button: {
     backgroundColor: "black",

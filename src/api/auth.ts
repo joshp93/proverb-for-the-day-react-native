@@ -1,10 +1,10 @@
 import {
-  confirmSignUp,
-  fetchAuthSession,
-  getCurrentUser,
-  signIn,
-  signOut,
-  signUp,
+  confirmSignUp as amplifyConfirmSignUp,
+  fetchAuthSession as amplifyFetchAuthSession,
+  getCurrentUser as amplifyGetCurrentUser,
+  signIn as amplifySignIn,
+  signOut as amplifySignOut,
+  signUp as amplifySignUp,
 } from "@aws-amplify/auth";
 
 export interface AppAuthUser {
@@ -15,13 +15,13 @@ export interface AppAuthUser {
 
 export async function checkUserExists(email: string): Promise<boolean> {
   try {
-    console.log("[Auth API] Checking if user exists...");
-    const user = await getCurrentUser();
-    const exists = user.username === email;
-    console.log("[Auth API] User exists: ", exists);
+    console.log("[Auth API] Checking if user exists:", email);
+    const user = await amplifyGetCurrentUser();
+    const exists = user.username.toLowerCase() === email.toLowerCase();
+    console.log("[Auth API] User exists:", exists);
     return exists;
-  } catch (error: unknown) {
-    console.error("[Auth API] Error checking user existence", error);
+  } catch {
+    console.log("[Auth API] User does not exist");
     return false;
   }
 }
@@ -32,7 +32,7 @@ export async function createAccount(
 ): Promise<{ success: boolean; message?: string }> {
   try {
     console.log("[Auth API] Creating new account...");
-    await signUp({
+    await amplifySignUp({
       username: email,
       password,
       options: {
@@ -56,7 +56,7 @@ export async function verifyAccount(
 ): Promise<{ success: boolean; message?: string }> {
   try {
     console.log("[Auth API] Verifying account...");
-    await confirmSignUp({
+    await amplifyConfirmSignUp({
       username: email,
       confirmationCode: code,
     });
@@ -69,20 +69,20 @@ export async function verifyAccount(
   }
 }
 
-export async function login(
+export async function signIn(
   email: string,
   password: string,
 ): Promise<{ success: boolean; message?: string }> {
   try {
-    console.log("[Auth API] Attempting login...");
-    await signIn({
+    console.log("[Auth API] Attempting sign in...");
+    await amplifySignIn({
       username: email,
       password,
     });
-    console.log("[Auth API] Login successful");
+    console.log("[Auth API] Sign in successful");
     return { success: true };
   } catch (error: unknown) {
-    console.error("[Auth API] Login failed", error);
+    console.log("[Auth API] Sign in failed");
     const err = error as Error;
     return { success: false, message: err.message };
   }
@@ -90,14 +90,14 @@ export async function login(
 
 export async function logout(): Promise<void> {
   console.log("[Auth API] Logging out...");
-  await signOut();
+  await amplifySignOut();
   console.log("[Auth API] Logged out");
 }
 
 export async function getAuthenticatedUser(): Promise<AppAuthUser | null> {
   try {
     console.log("[Auth API] Getting authenticated user...");
-    const user = await getCurrentUser();
+    const user = await amplifyGetCurrentUser();
     console.log("[Auth API] User found");
     return {
       userId: user.userId,
@@ -105,6 +105,10 @@ export async function getAuthenticatedUser(): Promise<AppAuthUser | null> {
       email: user.username,
     };
   } catch (error: unknown) {
+    if ((error as Error).name === "UserUnAuthenticatedException") {
+      console.log("[Auth API] No authenticated user");
+      return null;
+    }
     console.error("[Auth API] Error getting authenticated user", error);
     return null;
   }
@@ -113,7 +117,7 @@ export async function getAuthenticatedUser(): Promise<AppAuthUser | null> {
 export async function getIdToken(): Promise<string | null> {
   try {
     console.log("[Auth API] Getting ID token...");
-    const session = await fetchAuthSession();
+    const session = await amplifyFetchAuthSession();
     const token = session.tokens?.idToken?.toString() ?? null;
     console.log("[Auth API] ID token retrieved:", token ? "yes" : "no");
     return token;

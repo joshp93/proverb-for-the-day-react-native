@@ -1,13 +1,13 @@
 import * as BackgroundTask from "expo-background-task";
+import type { TaskManagerTaskExecutor } from "expo-task-manager";
 import * as TaskManager from "expo-task-manager";
-import { getProverbForTheDay } from "../src/api/proverbs";
+import { getProverbForTheDay } from "../../src/api/proverbs";
 import {
   defineBackgroundTask,
   registerBackgroundTask,
   scheduleBackgroundTask,
-} from "../src/background/proverb-task";
-import { updateProverbWidget } from "../src/widgets";
-import type { TaskManagerTaskExecutor } from "expo-task-manager";
+} from "../../src/background/proverb-task";
+import { updateProverbWidget } from "../../src/widgets";
 
 jest.mock("expo-background-task", () => ({
   getStatusAsync: jest.fn(),
@@ -27,11 +27,11 @@ jest.mock("expo-task-manager", () => ({
   defineTask: jest.fn(),
 }));
 
-jest.mock("../src/api/proverbs", () => ({
+jest.mock("../../src/api/proverbs", () => ({
   getProverbForTheDay: jest.fn(),
 }));
 
-jest.mock("../src/widgets", () => ({
+jest.mock("../../src/widgets", () => ({
   updateProverbWidget: jest.fn(),
 }));
 
@@ -167,7 +167,11 @@ describe("defineBackgroundTask", () => {
     );
 
     defineBackgroundTask();
-    await taskExecutor!({ data: {}, error: null, executionInfo: { eventId: "", taskName: "" } });
+    await taskExecutor!({
+      data: {},
+      error: null,
+      executionInfo: { eventId: "", taskName: "" },
+    });
 
     expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
     expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
@@ -189,7 +193,11 @@ describe("defineBackgroundTask", () => {
     );
 
     defineBackgroundTask();
-    const result = await taskExecutor!({ data: {}, error: null, executionInfo: { eventId: "", taskName: "" } });
+    const result = await taskExecutor!({
+      data: {},
+      error: null,
+      executionInfo: { eventId: "", taskName: "" },
+    });
 
     expect(result).toBe(BackgroundTask.BackgroundTaskResult.Success);
   });
@@ -209,7 +217,11 @@ describe("defineBackgroundTask", () => {
     );
 
     defineBackgroundTask();
-    await taskExecutor!({ data: {}, error: null, executionInfo: { eventId: "", taskName: "" } });
+    await taskExecutor!({
+      data: {},
+      error: null,
+      executionInfo: { eventId: "", taskName: "" },
+    });
 
     expect(consoleSpy).toHaveBeenCalledWith("Background task failed:", error);
   });

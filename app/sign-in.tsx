@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { login } from "../src/api/auth";
+import { signIn } from "../src/api/auth";
 import { useAuth } from "../src/auth/auth-context";
 
 const isValidEmail = (email: string) => {
@@ -15,6 +15,7 @@ export default function SignIn() {
   const { refreshUser } = useAuth();
   const [email, setEmail] = useState(params.email || "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{
@@ -52,12 +53,12 @@ export default function SignIn() {
     }
 
     setLoading(true);
-    const result = await login(email, password);
+    const result = await signIn(email, password);
     setLoading(false);
 
     if (result.success) {
       await refreshUser();
-      router.back();
+      router.replace("/");
     } else {
       setFormError(result.message || "Sign in failed. Please try again.");
     }
@@ -85,17 +86,28 @@ export default function SignIn() {
           <Text style={styles.fieldError}>{fieldErrors.email}</Text>
         ) : null}
 
-        <TextInput
-          style={[
-            styles.input,
-            fieldErrors.password ? styles.inputError : null,
-          ]}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          onBlur={() => validateField("password", password)}
-          secureTextEntry
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              styles.passwordInput,
+              fieldErrors.password ? styles.inputError : null,
+            ]}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            onBlur={() => validateField("password", password)}
+            secureTextEntry={!showPassword}
+          />
+          <Pressable
+            style={styles.showPasswordButton}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Text style={styles.showPasswordText}>
+              {showPassword ? "Hide" : "Show"}
+            </Text>
+          </Pressable>
+        </View>
         {fieldErrors.password ? (
           <Text style={styles.fieldError}>{fieldErrors.password}</Text>
         ) : null}
@@ -151,6 +163,23 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "#dc3545",
+  },
+  passwordContainer: {
+    position: "relative",
+  },
+  passwordInput: {
+    paddingRight: 60,
+  },
+  showPasswordButton: {
+    position: "absolute",
+    right: 15,
+    top: 0,
+    bottom: 15,
+    justifyContent: "center",
+  },
+  showPasswordText: {
+    color: "#007AFF",
+    fontSize: 16,
   },
   button: {
     backgroundColor: "black",

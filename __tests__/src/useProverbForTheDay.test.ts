@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from "@testing-library/react-native";
-import { useProverbForTheDay } from "../src/hooks/useProverbForTheDay";
+import { useProverbForTheDay } from "../../src/hooks/useProverbForTheDay";
 
 global.fetch = jest.fn();
 

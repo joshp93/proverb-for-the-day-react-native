@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { checkUserExists } from "../src/api/auth";
 
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,44 +34,56 @@ export default function EmailEntry() {
     return true;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!validateField(email)) {
       return;
     }
 
-    router.push({ pathname: "/sign-in", params: { email } });
+    setLoading(true);
+    try {
+      const userExists = await checkUserExists(email);
+      if (userExists) {
+        router.push({ pathname: "/sign-in", params: { email } });
+      } else {
+        router.push({ pathname: "/sign-up", params: { email } });
+      }
+    } catch {
+      setFieldError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <Stack.Screen options={{ title: "Welcome" }} />
       <View style={styles.container}>
-      <Text style={styles.title}>Welcome</Text>
-      <Text style={styles.subtitle}>Enter your email to continue</Text>
+        <Text style={styles.title}>Welcome</Text>
+        <Text style={styles.subtitle}>Enter your email to continue</Text>
 
-      {fieldError ? <Text style={styles.fieldError}>{fieldError}</Text> : null}
+        {fieldError ? (
+          <Text style={styles.fieldError}>{fieldError}</Text>
+        ) : null}
 
-      <TextInput
-        style={[styles.input, fieldError ? styles.inputError : null]}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        onBlur={() => validateField(email)}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        autoComplete="email"
-      />
+        <TextInput
+          style={[styles.input, fieldError ? styles.inputError : null]}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          onBlur={() => validateField(email)}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          autoComplete="email"
+        />
 
-      <Pressable
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handleContinue}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "" : "Continue"}
-        </Text>
-      </Pressable>
-      {loading && <ActivityIndicator style={styles.loader} />}
+        <Pressable
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleContinue}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>{loading ? "" : "Continue"}</Text>
+        </Pressable>
+        {loading && <ActivityIndicator style={styles.loader} />}
       </View>
     </>
   );

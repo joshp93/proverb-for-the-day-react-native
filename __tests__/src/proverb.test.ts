@@ -1,4 +1,4 @@
-import { ProverbSchema } from "../src/models/proverb";
+import { ProverbSchema } from "../../src/models/proverb";
 
 describe("Proverb Schema", () => {
   it("should validate a correct proverb object", () => {

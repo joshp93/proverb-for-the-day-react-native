@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log("[Auth] User is authenticated, fetching ID token...");
         const token = await getIdToken();
         if (token) {
-          console.log("[Auth] User logged in successfully");
+          console.log("[Auth] User signed in successfully");
           setUser({ ...authenticatedUser, token });
         } else {
           console.log("[Auth] No ID token found, user is null");

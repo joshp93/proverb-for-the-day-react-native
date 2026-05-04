@@ -58,7 +58,10 @@ export default function ConfirmSignUp() {
 
     if (result.success) {
       setSuccessMessage("Your email has been verified. You can now sign in.");
-      setTimeout(() => router.back(), 2000);
+      setTimeout(
+        () => router.push({ pathname: "/sign-in", params: { email } }),
+        2000,
+      );
     } else {
       setFormError(result.message || "Verification failed. Please try again.");
     }
@@ -68,52 +71,52 @@ export default function ConfirmSignUp() {
     <>
       <Stack.Screen options={{ title: "Confirm Sign Up" }} />
       <View style={styles.container}>
-      <Text style={styles.title}>Confirm Sign Up</Text>
-      <Text style={styles.subtitle}>
-        Enter the 6-digit code sent to your email
-      </Text>
-
-      {formError ? <Text style={styles.formError}>{formError}</Text> : null}
-      {successMessage ? (
-        <Text style={styles.success}>{successMessage}</Text>
-      ) : null}
-
-      <TextInput
-        style={[styles.input, fieldErrors.email ? styles.inputError : null]}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        onBlur={() => validateField("email", email)}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        autoComplete="email"
-      />
-      {fieldErrors.email ? (
-        <Text style={styles.fieldError}>{fieldErrors.email}</Text>
-      ) : null}
-
-      <TextInput
-        style={[styles.input, fieldErrors.code ? styles.inputError : null]}
-        placeholder="Verification Code"
-        value={code}
-        onChangeText={setCode}
-        onBlur={() => validateField("code", code)}
-        keyboardType="number-pad"
-        maxLength={6}
-      />
-      {fieldErrors.code ? (
-        <Text style={styles.fieldError}>{fieldErrors.code}</Text>
-      ) : null}
-
-      <Pressable
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handleConfirm}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "Verifying..." : "Verify"}
+        <Text style={styles.title}>Confirm Sign Up</Text>
+        <Text style={styles.subtitle}>
+          Enter the 6-digit code sent to your email
         </Text>
-      </Pressable>
+
+        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+        {successMessage ? (
+          <Text style={styles.success}>{successMessage}</Text>
+        ) : null}
+
+        <TextInput
+          style={[styles.input, fieldErrors.email ? styles.inputError : null]}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          onBlur={() => validateField("email", email)}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          autoComplete="email"
+        />
+        {fieldErrors.email ? (
+          <Text style={styles.fieldError}>{fieldErrors.email}</Text>
+        ) : null}
+
+        <TextInput
+          style={[styles.input, fieldErrors.code ? styles.inputError : null]}
+          placeholder="Verification Code"
+          value={code}
+          onChangeText={setCode}
+          onBlur={() => validateField("code", code)}
+          keyboardType="number-pad"
+          maxLength={6}
+        />
+        {fieldErrors.code ? (
+          <Text style={styles.fieldError}>{fieldErrors.code}</Text>
+        ) : null}
+
+        <Pressable
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleConfirm}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "Verifying..." : "Verify"}
+          </Text>
+        </Pressable>
       </View>
     </>
   );
