@@ -1,23 +1,8 @@
 import { Amplify } from "@aws-amplify/core";
-
-const awsExports = {
-  Auth: {
-    Cognito: {
-      userPoolId: "eu-west-2_iQM6jAUkv",
-      userPoolClientId: "47im7unupup988ridcvlmcqpg8",
-      loginWith: {
-        email: true,
-      },
-      signUpVerificationMethod: "code" as const,
-      userAttributes: {
-        email: { required: true },
-      },
-    },
-  },
-};
+import amplifyconfig from "../amplify_outputs.json";
 
 export function configureAmplify() {
-  Amplify.configure(awsExports);
+  Amplify.configure(amplifyconfig);
 }
 
-export const isConfigured = () => !!awsExports.Auth.Cognito.userPoolId;
+export const isConfigured = () => !!amplifyconfig.auth.user_pool_id;
