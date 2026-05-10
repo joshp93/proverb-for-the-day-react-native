@@ -94,6 +94,7 @@ export async function signIn(
     return { success: true };
   } catch (error: unknown) {
     console.log("[Auth API] Sign in failed", error);
+    console.log("Underlying error", (error as any).underlyingError);
     const err = error as Error;
     return { success: false, message: err.message };
   }

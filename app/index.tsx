@@ -1,3 +1,5 @@
+import "../src/amplify-configuration";
+
 import "react-native-get-random-values";
 
 import { Stack } from "expo-router";

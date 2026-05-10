@@ -1,4 +1,3 @@
-import "react-native-get-random-values";
 import {
   Nunito_400Regular,
   Nunito_400Regular_Italic,
@@ -6,9 +5,14 @@ import {
 } from "@expo-google-fonts/nunito";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
-import { Image, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
-import { configureAmplify, isConfigured } from "../src/amplify-configuration";
+import { useEffect } from "react";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  View,
+} from "react-native";
 import { AuthProvider } from "../src/auth/auth-context";
 import {
   defineBackgroundTask,
@@ -40,8 +44,8 @@ function AppContent() {
   }
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <Stack
@@ -67,27 +71,6 @@ function AppContent() {
 }
 
 export default function RootLayout() {
-  const [amplifyReady, setAmplifyReady] = useState(false);
-
-  useEffect(() => {
-    if (isConfigured()) {
-      configureAmplify();
-      setAmplifyReady(true);
-    }
-  }, []);
-
-  if (!amplifyReady) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.warningText}>Amplify not configured</Text>
-        <Text style={styles.configText}>
-          Please update src/amplify-configuration.ts{"\n"}
-          with your Cognito User Pool ID and App Client ID
-        </Text>
-      </View>
-    );
-  }
-
   return (
     <AuthProvider>
       <AppContent />
