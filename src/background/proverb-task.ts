@@ -8,6 +8,7 @@ import * as TaskManager from "expo-task-manager";
 import { updateProverbWidget } from "../../src/widgets";
 import { getProverbForTheDay } from "../api/proverbs";
 import { getChosenVersion } from "../api/version-storage";
+import { scheduleDailyProverbNotification } from "../notifications/daily-proverb-notification";
 
 const TASK_NAME = "daily-proverb-fetch";
 
@@ -17,6 +18,7 @@ const executeBackgroundTask = async () => {
     const version = storedVersion || "niv";
     const proverb = await getProverbForTheDay(version);
     await updateProverbWidget(proverb);
+    await scheduleDailyProverbNotification();
   } catch (error) {
     console.error("Background task failed:", error);
   }

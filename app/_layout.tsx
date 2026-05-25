@@ -21,6 +21,10 @@ import {
   scheduleBackgroundTask,
 } from "../src/background/proverb-task";
 import { HeaderMenu } from "../src/components/header-menu";
+import {
+  initializeNotifications,
+  scheduleDailyProverbNotification,
+} from "../src/notifications/daily-proverb-notification";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,6 +37,8 @@ function AppContent() {
   useEffect(() => {
     defineBackgroundTask();
     scheduleBackgroundTask();
+    initializeNotifications();
+    scheduleDailyProverbNotification();
   }, []);
 
   useEffect(() => {

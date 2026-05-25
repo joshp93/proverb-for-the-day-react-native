@@ -35,6 +35,10 @@ jest.mock("../../src/widgets", () => ({
   updateProverbWidget: jest.fn(),
 }));
 
+jest.mock("../../src/notifications/daily-proverb-notification", () => ({
+  scheduleDailyProverbNotification: jest.fn(),
+}));
+
 describe("registerBackgroundTask", () => {
   const mockGetStatusAsync =
     BackgroundTask.getStatusAsync as jest.MockedFunction<
@@ -130,6 +134,9 @@ describe("defineBackgroundTask", () => {
   const mockUpdateProverbWidget = updateProverbWidget as jest.MockedFunction<
     typeof updateProverbWidget
   >;
+  const mockScheduleDailyProverbNotification = jest.requireMock(
+    "../../src/notifications/daily-proverb-notification",
+  ).scheduleDailyProverbNotification;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -151,13 +158,14 @@ describe("defineBackgroundTask", () => {
     );
   });
 
-  it("should fetch proverb and update widget when task executes", async () => {
+  it("should fetch proverb, update widget, and schedule notification when task executes", async () => {
     const mockProverb = {
       ref: "Proverbs 3:5",
       proverb: "Trust in the LORD",
     };
     mockGetProverbForTheDay.mockResolvedValueOnce(mockProverb);
     mockUpdateProverbWidget.mockResolvedValueOnce(undefined);
+    mockScheduleDailyProverbNotification.mockResolvedValueOnce(undefined);
 
     let taskExecutor: TaskManagerTaskExecutor;
     mockDefineTask.mockImplementationOnce(
@@ -175,6 +183,7 @@ describe("defineBackgroundTask", () => {
 
     expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
     expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
+    expect(mockScheduleDailyProverbNotification).toHaveBeenCalledTimes(1);
   });
 
   it("should return BackgroundTaskResult.Success on success", async () => {
@@ -184,6 +193,7 @@ describe("defineBackgroundTask", () => {
     };
     mockGetProverbForTheDay.mockResolvedValueOnce(mockProverb);
     mockUpdateProverbWidget.mockResolvedValueOnce(undefined);
+    mockScheduleDailyProverbNotification.mockResolvedValueOnce(undefined);
 
     let taskExecutor: TaskManagerTaskExecutor;
     mockDefineTask.mockImplementationOnce(
