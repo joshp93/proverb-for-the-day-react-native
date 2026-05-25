@@ -5,6 +5,13 @@ import { signIn as apiSignIn } from "../../src/api/auth";
 const mockRefreshUser = jest.fn();
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
+const mockDispatch = jest.fn();
+
+jest.mock("../../src/api/cognito", () => {
+  return {
+    signIn: jest.fn().mockResolvedValue({ success: true }),
+  };
+});
 
 jest.mock("expo-router", () => ({
   useRouter: () => ({
@@ -12,6 +19,9 @@ jest.mock("expo-router", () => ({
     replace: mockReplace,
   }),
   useLocalSearchParams: () => ({}),
+  useNavigation: () => ({
+    dispatch: mockDispatch,
+  }),
   Stack: {
     Screen: () => null,
   },
@@ -84,7 +94,7 @@ describe("SignIn", () => {
     });
 
     expect(mockRefreshUser).toHaveBeenCalled();
-    expect(mockReplace).toHaveBeenCalledWith("/");
+    expect(mockDispatch).toHaveBeenCalled();
   });
 
   it("should show error message on sign in failure", async () => {

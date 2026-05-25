@@ -43,7 +43,9 @@ const getRandomTimeInWindow = (): Date => {
     windowStartMinutes +
     Math.floor(Math.random() * (windowEndMinutes - windowStartMinutes));
 
-  return new Date(startOfDay.getTime() + randomMinutes * 60 * 1000);
+  const randomDate = new Date(startOfDay.getTime() + randomMinutes * 60 * 1000);
+  console.debug("Scheduled notification for:", randomDate);
+  return randomDate;
 };
 
 export const scheduleDailyProverbNotification = async () => {

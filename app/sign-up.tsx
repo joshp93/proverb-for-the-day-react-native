@@ -81,13 +81,17 @@ export default function SignUp() {
 
     if (result.success) {
       setSuccessMessage("Check your email for a verification code");
-      router.push({
+      router.replace({
         pathname: "/confirm-sign-up",
         params: { email },
       });
     } else {
       setFormError(result.message || "Sign up failed. Please try again.");
     }
+  };
+
+  const handleBack = () => {
+    router.replace("/email-entry");
   };
 
   return (
@@ -169,6 +173,10 @@ export default function SignUp() {
           <Text style={styles.buttonText}>
             {loading ? "Signing up..." : "Sign Up"}
           </Text>
+        </Pressable>
+
+        <Pressable style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>Back to Email</Text>
         </Pressable>
       </View>
     </>
@@ -255,6 +263,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   link: {
+    color: "#007AFF",
+    fontSize: 16,
+  },
+  backButton: {
+    marginTop: 15,
+    padding: 10,
+    alignItems: "center",
+  },
+  backButtonText: {
     color: "#007AFF",
     fontSize: 16,
   },

@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  Animated,
   Modal,
   Pressable,
   StyleSheet,
@@ -12,22 +13,47 @@ import { useAuth } from "../auth/auth-context";
 
 export function HeaderMenu() {
   const [visible, setVisible] = useState(false);
+  const [slideAnimation] = useState(new Animated.Value(300));
   const router = useRouter();
   const { user, signOut } = useAuth();
 
   const handleSignIn = () => {
-    setVisible(false);
+    closeMenu();
     router.push("/email-entry");
   };
 
+  const handleNotifications = () => {
+    closeMenu();
+    router.push("/notifications");
+  };
+
   const handleSignOut = () => {
-    setVisible(false);
+    closeMenu();
     signOut();
+  };
+
+  const openMenu = () => {
+    setVisible(true);
+    Animated.timing(slideAnimation, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeMenu = () => {
+    Animated.timing(slideAnimation, {
+      toValue: 300,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setVisible(false);
+    });
   };
 
   return (
     <>
-      <Pressable onPress={() => setVisible(true)} style={styles.burger}>
+      <Pressable onPress={openMenu} style={styles.burger}>
         <View style={styles.burgerLine} />
         <View style={styles.burgerLine} />
         <View style={styles.burgerLine} />
@@ -36,27 +62,43 @@ export function HeaderMenu() {
       <Modal
         visible={visible}
         transparent
-        animationType="fade"
-        onRequestClose={() => setVisible(false)}
+        animationType="none"
+        onRequestClose={closeMenu}
       >
-        <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
-          <View style={styles.menu}>
-            {user ? (
-              <>
-                <Text style={styles.userEmail}>{user.email}</Text>
+        <Pressable style={styles.overlay} onPress={closeMenu}>
+          <Animated.View
+            style={[
+              styles.drawerMenu,
+              { transform: [{ translateX: slideAnimation }] },
+            ]}
+          >
+            <View style={styles.menuContent}>
+              {user ? (
+                <>
+                  <Text style={styles.userEmail}>{user.email}</Text>
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={handleNotifications}
+                  >
+                    <Text style={styles.menuText}>Notifications</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={handleSignOut}
+                  >
+                    <Text style={styles.menuText}>Sign Out</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
                 <TouchableOpacity
                   style={styles.menuItem}
-                  onPress={handleSignOut}
+                  onPress={handleSignIn}
                 >
-                  <Text style={styles.menuText}>Sign Out</Text>
+                  <Text style={styles.menuText}>Sign In</Text>
                 </TouchableOpacity>
-              </>
-            ) : (
-              <TouchableOpacity style={styles.menuItem} onPress={handleSignIn}>
-                <Text style={styles.menuText}>Sign In</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+              )}
+            </View>
+          </Animated.View>
         </Pressable>
       </Modal>
     </>
@@ -68,6 +110,7 @@ const styles = StyleSheet.create({
     padding: 8,
     justifyContent: "center",
     alignItems: "center",
+    height: "100%",
   },
   burgerLine: {
     width: 20,
@@ -78,21 +121,24 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-start",
-    alignItems: "flex-end",
-    paddingTop: 60,
-    paddingRight: 20,
   },
-  menu: {
+  drawerMenu: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: 300,
     backgroundColor: "white",
-    borderRadius: 8,
-    padding: 16,
-    minWidth: 150,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: -2, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  menuContent: {
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   userEmail: {
     fontSize: 14,
@@ -103,10 +149,11 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   menuItem: {
-    paddingVertical: 12,
+    paddingVertical: 16,
   },
   menuText: {
     fontSize: 16,
     color: "#333",
+    fontWeight: "500",
   },
 });

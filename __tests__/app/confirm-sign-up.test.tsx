@@ -4,7 +4,7 @@ import { verifyAccount, resendVerificationCode } from "../../src/api/auth";
 
 jest.mock("expo-router", () => ({
   useRouter: () => ({
-    push: jest.fn(),
+    replace: jest.fn(),
   }),
   useLocalSearchParams: () => ({ email: "test@example.com" }),
   Stack: {

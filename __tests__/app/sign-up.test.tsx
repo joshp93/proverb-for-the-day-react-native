@@ -2,11 +2,11 @@ import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import SignUp from "../../app/sign-up";
 import { createAccount } from "../../src/api/auth";
 
-const mockPush = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock("expo-router", () => ({
   useRouter: () => ({
-    push: mockPush,
+    replace: mockReplace,
   }),
   useLocalSearchParams: () => ({}),
   Stack: {
@@ -135,7 +135,7 @@ describe("SignUp", () => {
       );
     });
 
-    expect(mockPush).toHaveBeenCalledWith({
+    expect(mockReplace).toHaveBeenCalledWith({
       pathname: "/confirm-sign-up",
       params: { email: "test@example.com" },
     });

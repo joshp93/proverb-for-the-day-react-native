@@ -36,7 +36,7 @@ export default function ConfirmSignUp() {
     if (result.success) {
       setSuccessMessage("Your email has been verified. You can now sign in.");
       setTimeout(
-        () => router.push({ pathname: "/sign-in", params: { email } }),
+        () => router.replace({ pathname: "/sign-in", params: { email } }),
         2000,
       );
     } else {

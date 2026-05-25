@@ -43,9 +43,9 @@ export default function EmailEntry() {
     try {
       const userExists = await checkUserExists(email);
       if (userExists) {
-        router.push({ pathname: "/sign-in", params: { email } });
+        router.replace({ pathname: "/sign-in", params: { email } });
       } else {
-        router.push({ pathname: "/sign-up", params: { email } });
+        router.replace({ pathname: "/sign-up", params: { email } });
       }
     } catch {
       setFieldError("Something went wrong. Please try again.");

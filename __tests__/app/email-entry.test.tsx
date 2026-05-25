@@ -3,12 +3,10 @@ import EmailEntry from "../../app/email-entry";
 import { checkUserExists } from "../../src/api/auth";
 
 const mockReplace = jest.fn();
-const mockPush = jest.fn();
 
 jest.mock("expo-router", () => ({
   useRouter: () => ({
     replace: mockReplace,
-    push: mockPush,
   }),
   useLocalSearchParams: () => ({}),
   Stack: {
@@ -73,7 +71,7 @@ describe("EmailEntry", () => {
       expect(mockCheckUserExists).toHaveBeenCalledWith("test@example.com");
     });
 
-    expect(mockPush).toHaveBeenCalledWith({
+    expect(mockReplace).toHaveBeenCalledWith({
       pathname: "/sign-in",
       params: { email: "test@example.com" },
     });
@@ -94,7 +92,7 @@ describe("EmailEntry", () => {
       expect(mockCheckUserExists).toHaveBeenCalledWith("new@example.com");
     });
 
-    expect(mockPush).toHaveBeenCalledWith({
+    expect(mockReplace).toHaveBeenCalledWith({
       pathname: "/sign-up",
       params: { email: "new@example.com" },
     });

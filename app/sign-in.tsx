@@ -1,4 +1,10 @@
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Stack,
+  useLocalSearchParams,
+  useNavigation,
+  useRouter,
+} from "expo-router";
+import { StackActions } from "expo-router/build/react-navigation";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { signIn } from "../src/api/auth";
@@ -6,6 +12,7 @@ import { useAuth } from "../src/auth/auth-context";
 
 export default function SignIn() {
   const router = useRouter();
+  const navigation = useNavigation();
   const params = useLocalSearchParams<{ email?: string }>();
   const { refreshUser } = useAuth();
   const email = params.email || "";
@@ -30,6 +37,7 @@ export default function SignIn() {
 
     if (result.success) {
       await refreshUser();
+      navigation.dispatch(StackActions.popToTop());
       router.replace("/");
     } else if (result.requiresConfirmation) {
       // User account not confirmed yet, redirect to confirmation screen
@@ -40,6 +48,10 @@ export default function SignIn() {
     } else {
       setFormError(result.message || "Sign in failed. Please try again.");
     }
+  };
+
+  const handleBack = () => {
+    router.replace("/email-entry");
   };
 
   return (
@@ -84,13 +96,17 @@ export default function SignIn() {
           onPress={handleSignIn}
           disabled={loading}
         >
-<Text style={styles.buttonText}>
+          <Text style={styles.buttonText}>
             {loading ? "Signing in..." : "Sign In"}
           </Text>
         </Pressable>
-        </View>
-      </>
-    );
+
+        <Pressable style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>Back to Email</Text>
+        </Pressable>
+      </View>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -173,6 +189,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   link: {
+    color: "#007AFF",
+    fontSize: 16,
+  },
+  backButton: {
+    marginTop: 15,
+    padding: 10,
+    alignItems: "center",
+  },
+  backButtonText: {
     color: "#007AFF",
     fontSize: 16,
   },
