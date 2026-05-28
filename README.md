@@ -1,50 +1,117 @@
-# Welcome to your Expo app 👋
+# Lemuel
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A daily proverb app that displays a new proverb each day and encourages users to meditate on it.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Daily Proverb**: Fetches a daily proverb from an API and displays it in the app.
+- **Home Screen Widget**: Shows today's proverb on the home screen and auto-updates daily.
+- **Push Notifications**: Schedules push notifications to remind the user to read the proverb of the day.
 
-   ```bash
-   npm install
-   ```
+## Future Goals
 
-2. Start the app
+- **Notes/Comments System**: A feature for personal reflections, with options for public or private notes.
 
-   ```bash
-   npx expo start
-   ```
+## Tech Stack
 
-In the output, you'll find options to open the app in a
+- **Frontend**: React Native with Expo
+- **Backend**: AWS Lambda (managed separately)
+- **Authentication**: AWS Cognito
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Development
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Prerequisites
 
-## Get a fresh project
+- [Node.js](https://nodejs.org/)
+- [pnpm](https://pnpm.io/)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
 
-When you're ready, run:
+### Getting Started
 
-```bash
-npm run reset-project
+1.  **Install dependencies**:
+    ```bash
+    pnpm install
+    ```
+2.  **Run the app**:
+
+    This project includes native code and is **not compatible with Expo Go**. You must run it in a development build on a simulator or physical device.
+
+    ```bash
+    # Run on Android
+    pnpm android
+
+    # Run on iOS
+    pnpm ios
+    ```
+
+## Architecture
+
+### Widget Implementation
+
+The app displays a home screen widget showing today's proverb, automatically updating daily.
+
+-   **Voltra**: Provides Android widget support via Jetpack Compose Glance.
+-   **Background Task**: Scheduled daily updates via `expo-background-task`.
+-   **Config**: Widget defined in `app.json` plugins.
+
+### Push Notifications
+
+The app uses `expo-notifications` to schedule daily push notifications.
+
+-   **Scheduling**: `src/notifications/daily-proverb-notification.ts`
+-   **Preferences**: `src/notifications/notification-preferences.ts`
+-   **Battery Optimization**: `src/utils/battery-optimization.ts` ensures notification delivery.
+
+### Daily Proverbs
+
+The app fetches the proverb of the day from a remote API.
+
+-   **Data Fetching**: `src/hooks/useProverbForTheDay.ts`
+-   **API Client**: `src/api/proverbs.ts`
+-   **UI**: `src/components/proverb-card.tsx`
+
+### Authentication Flow
+
+The app uses AWS Cognito for authentication with SRP (Secure Remote Password) for sign-in and automatic token refresh.
+
+#### Sign-In Flow (SRP)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant App
+    participant Cognito
+
+    User->>App: Enters email/password
+    App->>Cognito: InitiateAuth (SRP_A)
+    Cognito-->>App: SRP_B, salt, secret_block
+    App->>App: Compute session key & signature
+    App->>Cognito: RespondToAuthChallenge (signature)
+    Cognito-->>App: IdToken, AccessToken, RefreshToken
+    App->>App: Store tokens in AsyncStorage
+    App->>User: Sign-in successful
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+#### Token Refresh Flow
 
-## Learn more
+The app automatically refreshes tokens before they expire.
 
-To learn more about developing your project with Expo, look at the following resources:
+```mermaid
+sequenceDiagram
+    participant App
+    participant AsyncStorage
+    participant Cognito
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+    App->>AsyncStorage: Get stored tokens
+    AsyncStorage-->>App: IdToken, AccessToken, RefreshToken
 
-## Join the community
+    Note over App: Check if token expiring soon
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+    alt Token expired or expiring soon (< 5 min)
+        App->>Cognito: InitiateAuth (REFRESH_TOKEN_AUTH + RefreshToken)
+        Cognito-->>App: New IdToken, New AccessToken
+        App->>AsyncStorage: Save new tokens (reuse RefreshToken)
+    else Token still valid
+        AsyncStorage-->>App: Return current token
+    end
+```

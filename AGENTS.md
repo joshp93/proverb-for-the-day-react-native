@@ -6,11 +6,12 @@ A daily proverb app that displays a new proverb each day and encourages users to
 
 - Fetches a daily proverb from an API and displays it in the app
 - Shows a widget on the home screen with today's proverb (auto-updates daily)
+- Schedules push notifications to remind the user to read the proverb of the day
 
 ## Ultimate Goals
 
 - ✅ **Widget** - Home screen widget showing the Daily Proverb
-- Push notifications reminding users to meditate on the daily proverb
+- ✅ **Push Notifications** - Push notifications reminding users to meditate on the daily proverb
 - Notes/comments system for personal reflections (public or private)
 
 Backend is separate (AWS Lambda). API changes needed for features beyond the app's direct functionality.
@@ -18,14 +19,13 @@ Backend is separate (AWS Lambda). API changes needed for features beyond the app
 ## Development Guidelines
 
 - Uses pnpm and TypeScript
+- Check which shell / environment you are running in before starting to avoid wasted effort. for example if you're running in PowerShell you can't use grep
 - Unit tests required
 - Don't modify generated files (e.g., android folder - regenerated on build)
 - Follow Expo documentation
 - Avoid building/running unless asked; if needed, ask first
 - Avoid running tests unless asked because this slows down the feedback loop
 - Optimize imports
-
-** Please keep this file up to date **
 
 # Widget Implementation
 
@@ -40,8 +40,28 @@ The app displays a home screen widget showing today's proverb, automatically upd
 ## Key Files
 
 - `src/widgets/proverb-widget.tsx` - Widget component
+- `src/widgets/index.tsx` - Widget registration
 - `src/background/proverb-task.ts` - Background update scheduling
 - `app.json` - Voltra plugin configuration
+
+# Push Notifications
+
+The app uses `expo-notifications` to schedule daily push notifications to remind the user to read the proverb of the day.
+
+## Key Files
+- `src/notifications/daily-proverb-notification.ts` - Logic for scheduling daily proverb notifications.
+- `src/notifications/notification-preferences.ts` - Logic for storing and retrieving notification preferences.
+- `src/utils/battery-optimization.ts` - Logic for disabling battery optimization to ensure notifications are delivered.
+
+# Daily Proverbs
+
+The app fetches the proverb of the day from a remote API.
+
+## Key Files
+- `src/hooks/useProverbForTheDay.ts` - Hook for fetching the proverb of the day.
+- `src/api/proverbs.ts` - API client for fetching proverbs.
+- `src/components/proverb-card.tsx` - Component for displaying a proverb.
+- `src/models/proverb.ts` - Proverb data model.
 
 # Authentication Flow
 
@@ -119,6 +139,7 @@ Call these functions before making authenticated API calls:
 ### Silent Sign-Out
 
 If refresh fails (e.g., refresh token expired):
+
 1. Clear all tokens from AsyncStorage
 2. Set user to null in AuthContext
 3. App continues functioning (unauthenticated)
@@ -126,15 +147,13 @@ If refresh fails (e.g., refresh token expired):
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/auth/auth-context.tsx` | React Context providing auth state to app |
-| `src/auth/token-storage.ts` | AsyncStorage read/write for tokens |
-| `src/auth/token-utils.ts` | Token expiration checking utilities |
-| `src/api/auth.ts` | Auth API functions (signIn, signOut, refresh) |
-| `src/api/cognito.ts` | Low-level Cognito SDK calls |
-| `src/api/srp.ts` | SRP protocol implementation |
-| `src/api/srp-crypto.ts` | SHA-256, HMAC, HKDF crypto functions |
+| File                        | Purpose                                       |
+| --------------------------- | --------------------------------------------- |
+| `src/auth/auth-context.tsx` | React Context providing auth state to app     |
+| `src/auth/token-storage.ts` | AsyncStorage read/write for tokens            |
+| `src/auth/token-utils.ts`   | Token expiration checking utilities           |
+| `src/api/auth.ts`           | Auth API functions (signIn, signOut, refresh) |
+| `src/api/cognito.ts`        | Low-level Cognito SDK calls                   |
 
 ## Using Auth in Components
 
@@ -151,8 +170,8 @@ const success = await refreshToken();
 
 ## Token Expiration Times
 
-| Token Type | Default Lifetime | Configurable |
-|------------|------------------|---------------|
-| Access Token | 1 hour | Yes |
-| IdToken | 1 hour | Yes |
-| Refresh Token | 30 days | Yes |
+| Token Type    | Default Lifetime | Configurable |
+| ------------- | ---------------- | ------------ |
+| Access Token  | 1 hour           | Yes          |
+| IdToken       | 1 hour           | Yes          |
+| Refresh Token | 30 days          | Yes          |
