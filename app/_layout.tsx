@@ -16,10 +16,7 @@ import {
   View,
 } from "react-native";
 import { AuthProvider } from "../src/auth/auth-context";
-import {
-  defineBackgroundTask,
-  initializeBackgroundTask,
-} from "../src/background/proverb-task";
+import { initializeBackgroundTask } from "../src/background/proverb-task";
 import { HeaderMenu } from "../src/components/header-menu";
 import { initializeNotifications } from "../src/notifications/daily-proverb-notification";
 
@@ -32,7 +29,6 @@ function AppContent() {
   });
 
   useEffect(() => {
-    defineBackgroundTask();
     initializeBackgroundTask();
     initializeNotifications();
   }, []);

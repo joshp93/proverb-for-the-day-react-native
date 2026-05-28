@@ -73,22 +73,22 @@ export function HeaderMenu() {
             ]}
           >
             <View style={styles.menuContent}>
+              {user && (
+                <Text style={styles.userEmail}>{user.email}</Text>
+              )}
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={handleNotifications}
+              >
+                <Text style={styles.menuText}>Notifications</Text>
+              </TouchableOpacity>
               {user ? (
-                <>
-                  <Text style={styles.userEmail}>{user.email}</Text>
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={handleNotifications}
-                  >
-                    <Text style={styles.menuText}>Notifications</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={handleSignOut}
-                  >
-                    <Text style={styles.menuText}>Sign Out</Text>
-                  </TouchableOpacity>
-                </>
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={handleSignOut}
+                >
+                  <Text style={styles.menuText}>Sign Out</Text>
+                </TouchableOpacity>
               ) : (
                 <TouchableOpacity
                   style={styles.menuItem}

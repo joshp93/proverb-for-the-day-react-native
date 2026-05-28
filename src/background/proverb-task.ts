@@ -8,14 +8,14 @@ import {
 import * as TaskManager from "expo-task-manager";
 import { getProverbForTheDay } from "../api/proverbs";
 import { getChosenVersion } from "../api/version-storage";
-import { scheduleProverbNotification } from "../notifications/daily-proverb-notification";
+import { scheduleNextDayProverbNotification } from "../notifications/daily-proverb-notification";
 import { getNotificationsEnabled } from "../notifications/notification-preferences";
 import { updateProverbWidget } from "../widgets";
 
 const TASK_NAME = "daily-proverb-fetch";
 const INITIALIZED_KEY = "background_task_initialized";
 
-const executeBackgroundTask = async () => {
+export const executeBackgroundTask = async () => {
   try {
     const storedVersion = await getChosenVersion();
     const version = storedVersion || "niv";
@@ -24,7 +24,7 @@ const executeBackgroundTask = async () => {
 
     const notificationsEnabled = await getNotificationsEnabled();
     if (notificationsEnabled) {
-      await scheduleProverbNotification(proverb);
+      await scheduleNextDayProverbNotification(proverb);
     }
   } catch (error) {
     console.error("Background task failed:", error);
@@ -63,9 +63,7 @@ export const initializeBackgroundTask = async () => {
   }
 };
 
-export const defineBackgroundTask = () => {
-  TaskManager.defineTask(TASK_NAME, async () => {
-    await executeBackgroundTask();
-    return BackgroundTaskResult.Success;
-  });
-};
+TaskManager.defineTask(TASK_NAME, async () => {
+  await executeBackgroundTask();
+  return BackgroundTaskResult.Success;
+});

@@ -4,11 +4,11 @@ import type { TaskManagerTaskExecutor } from "expo-task-manager";
 import * as TaskManager from "expo-task-manager";
 import { getProverbForTheDay } from "../../src/api/proverbs";
 import {
-  defineBackgroundTask,
+  executeBackgroundTask,
   initializeBackgroundTask,
   registerBackgroundTask,
 } from "../../src/background/proverb-task";
-import { scheduleProverbNotification } from "../../src/notifications/daily-proverb-notification";
+import { scheduleNextDayProverbNotification } from "../../src/notifications/daily-proverb-notification";
 import { getNotificationsEnabled } from "../../src/notifications/notification-preferences";
 import { updateProverbWidget } from "../../src/widgets";
 
@@ -44,7 +44,7 @@ jest.mock("../../src/widgets", () => ({
 }));
 
 jest.mock("../../src/notifications/daily-proverb-notification", () => ({
-  scheduleProverbNotification: jest.fn(),
+  scheduleNextDayProverbNotification: jest.fn(),
 }));
 jest.mock("../../src/notifications/notification-preferences", () => ({
   getNotificationsEnabled: jest.fn(),
@@ -111,9 +111,9 @@ describe("initializeBackgroundTask", () => {
   const mockUpdateProverbWidget = updateProverbWidget as jest.MockedFunction<
     typeof updateProverbWidget
   >;
-  const mockScheduleProverbNotification =
-    scheduleProverbNotification as jest.MockedFunction<
-      typeof scheduleProverbNotification
+  const mockScheduleNextDayProverbNotification =
+    scheduleNextDayProverbNotification as jest.MockedFunction<
+      typeof scheduleNextDayProverbNotification
     >;
 
   const mockProverb = {
@@ -153,7 +153,7 @@ describe("initializeBackgroundTask", () => {
 
     expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
     expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
-    expect(mockScheduleProverbNotification).not.toHaveBeenCalled();
+    expect(mockScheduleNextDayProverbNotification).not.toHaveBeenCalled();
     expect(mockSetItem).toHaveBeenCalledWith(
       "background_task_initialized",
       "true",
@@ -174,7 +174,7 @@ describe("initializeBackgroundTask", () => {
   });
 });
 
-describe("defineBackgroundTask", () => {
+describe("background task definition", () => {
   const mockDefineTask = TaskManager.defineTask as jest.MockedFunction<
     typeof TaskManager.defineTask
   >;
@@ -184,9 +184,9 @@ describe("defineBackgroundTask", () => {
   const mockUpdateProverbWidget = updateProverbWidget as jest.MockedFunction<
     typeof updateProverbWidget
   >;
-  const mockScheduleProverbNotification =
-    scheduleProverbNotification as jest.MockedFunction<
-      typeof scheduleProverbNotification
+  const mockScheduleNextDayProverbNotification =
+    scheduleNextDayProverbNotification as jest.MockedFunction<
+      typeof scheduleNextDayProverbNotification
     >;
   const mockGetNotificationsEnabled =
     getNotificationsEnabled as jest.MockedFunction<
@@ -209,7 +209,12 @@ describe("defineBackgroundTask", () => {
       },
     );
     mockGetProverbForTheDay.mockResolvedValue(mockProverb);
-    defineBackgroundTask();
+    // Re-register the task executor since clearAllMocks wipes the
+    // top-level TaskManager.defineTask() call from the module import
+    TaskManager.defineTask("daily-proverb-fetch", async () => {
+      await executeBackgroundTask();
+      return BackgroundTask.BackgroundTaskResult.Success;
+    });
   });
 
   it("should define a task with the correct name", () => {
@@ -231,7 +236,9 @@ describe("defineBackgroundTask", () => {
 
       expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
       expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
-      expect(mockScheduleProverbNotification).toHaveBeenCalledWith(mockProverb);
+      expect(mockScheduleNextDayProverbNotification).toHaveBeenCalledWith(
+        mockProverb,
+      );
     });
   });
 
@@ -247,7 +254,7 @@ describe("defineBackgroundTask", () => {
 
       expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
       expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
-      expect(mockScheduleProverbNotification).not.toHaveBeenCalled();
+      expect(mockScheduleNextDayProverbNotification).not.toHaveBeenCalled();
     });
   });
 

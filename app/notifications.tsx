@@ -1,5 +1,5 @@
 import * as Notifications from "expo-notifications";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ScrollView,
@@ -9,35 +9,41 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { getProverbForTheDay } from "../src/api/proverbs";
+import { getChosenVersion } from "../src/api/version-storage";
 import {
   scheduleNextDayProverbNotification,
   sendProverbNotification,
 } from "../src/notifications/daily-proverb-notification";
-import { getProverbForTheDay } from "../src/api/proverbs";
-import { getChosenVersion } from "../src/api/version-storage";
 import {
   getNotificationsEnabled,
   setNotificationsEnabled,
 } from "../src/notifications/notification-preferences";
 import {
-  openBatteryOptimizationSettings,
   getBatteryOptimizationWarningText,
+  openBatteryOptimizationSettings,
 } from "../src/utils/battery-optimization";
 
 export default function NotificationsSettings() {
-  const router = useRouter();
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadNotificationPreference();
+    let mounted = true;
+    getNotificationsEnabled()
+      .then((isEnabled) => {
+        if (mounted) {
+          setEnabled(isEnabled);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
-
-  const loadNotificationPreference = async () => {
-    const isEnabled = await getNotificationsEnabled();
-    setEnabled(isEnabled);
-    setLoading(false);
-  };
 
   const handleToggle = async (value: boolean) => {
     setEnabled(value);
