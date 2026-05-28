@@ -2,7 +2,7 @@ export const getAvailableVersions = async (): Promise<string[]> => {
   try {
     const response = await fetch(
       new Request(
-        "https://8ndcvtnwf1.execute-api.eu-west-2.amazonaws.com/prod/available-versions",
+        "https://vua1tbtwtd.execute-api.eu-west-2.amazonaws.com/prod/available-versions",
         { method: "GET" },
       ),
     );

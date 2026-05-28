@@ -3,7 +3,7 @@ import { ProverbSchema } from "../models/proverb";
 export const getProverbForTheDay = (version?: string) =>
   fetch(
     new Request(
-      `https://8ndcvtnwf1.execute-api.eu-west-2.amazonaws.com/prod/${version || "kjv"}`,
+      `https://vua1tbtwtd.execute-api.eu-west-2.amazonaws.com/prod/${version || "kjv"}`,
       {
         method: "GET",
       },

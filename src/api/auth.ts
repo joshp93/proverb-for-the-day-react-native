@@ -23,7 +23,7 @@ export async function checkUserExists(email: string): Promise<boolean> {
     console.log("[Auth API] Checking if user exists:", email);
     const response = await fetch(
       new Request(
-        "https://8ndcvtnwf1.execute-api.eu-west-2.amazonaws.com/prod/auth/check-user-exists",
+        "https://vua1tbtwtd.execute-api.eu-west-2.amazonaws.com/prod/auth/check-user-exists",
         {
           method: "POST",
           headers: {
@@ -56,7 +56,9 @@ export async function createAccount(
   try {
     console.log("[Auth API] Creating new account...");
     await cognito.signUp(email, password);
-    console.log("[Auth API] Account created successfully (confirmation email sent automatically)");
+    console.log(
+      "[Auth API] Account created successfully (confirmation email sent automatically)",
+    );
     return { success: true };
   } catch (error: any) {
     console.error("[Auth API] Account creation failed", error);
@@ -109,7 +111,11 @@ export async function resendVerificationCode(
 export async function signIn(
   email: string,
   password: string,
-): Promise<{ success: boolean; message?: string; requiresConfirmation?: boolean }> {
+): Promise<{
+  success: boolean;
+  message?: string;
+  requiresConfirmation?: boolean;
+}> {
   try {
     console.log("[Auth API] Attempting sign in...");
     const response = await cognito.signIn(email, password);
@@ -128,13 +134,20 @@ export async function signIn(
     return { success: false, message: "Sign in failed to return tokens." };
   } catch (error: any) {
     console.error("[Auth API] Sign in failed", error);
-    
+
     // Check if the error is due to unconfirmed user account
-    if (error.name === "UserNotConfirmedException" || error.code === "UserNotConfirmedException") {
+    if (
+      error.name === "UserNotConfirmedException" ||
+      error.code === "UserNotConfirmedException"
+    ) {
       console.log("[Auth API] User account not confirmed yet");
-      return { success: false, requiresConfirmation: true, message: "Please confirm your account first." };
+      return {
+        success: false,
+        requiresConfirmation: true,
+        message: "Please confirm your account first.",
+      };
     }
-    
+
     return { success: false, message: error.message };
   }
 }
