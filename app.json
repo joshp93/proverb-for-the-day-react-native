@@ -64,7 +64,14 @@
           }
         }
       ],
-      "expo-background-task",
+      [
+        "expo-background-task",
+        {
+          "android": {
+            "taskName": "daily-proverb-fetch"
+          }
+        }
+      ],
       "expo-web-browser",
       [
         "expo-notifications",
