@@ -1,10 +1,16 @@
+import { LEMUEL_API_BASE_URL } from "./constants";
+
+/**
+ * Fetches the list of available Bible versions from the backend.
+ * @returns A sorted array of version strings, or an empty array on failure.
+ */
 export const getAvailableVersions = async (): Promise<string[]> => {
   try {
     const response = await fetch(
-      new Request(
-        "https://vua1tbtwtd.execute-api.eu-west-2.amazonaws.com/prod/available-versions",
-        { method: "GET" },
-      ),
+      `${LEMUEL_API_BASE_URL}/available-versions`,
+      {
+        method: "GET",
+      },
     );
     const data = (await response.json()) as string[];
     return data;

@@ -65,6 +65,23 @@ describe("Index", () => {
     expect(getByText("Trust in the LORD with all your heart")).toBeTruthy();
   });
 
+  it("should render citation when provided", () => {
+    const mockProverb = {
+      ref: "Proverbs 3:5",
+      proverb: "Trust in the LORD with all your heart",
+      citation: "King James Version (KJV)",
+    };
+    mockUseProverbForTheDay.mockReturnValue({
+      proverb: mockProverb,
+      loading: false,
+      error: null,
+    });
+
+    const { getByText } = render(<Index />);
+
+    expect(getByText("King James Version (KJV)")).toBeTruthy();
+  });
+
   it("should update widget when proverb loads", () => {
     const mockProverb = {
       ref: "Proverbs 3:5",

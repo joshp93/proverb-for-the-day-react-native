@@ -8,7 +8,7 @@ import {
   initializeBackgroundTask,
   registerBackgroundTask,
 } from "../../src/background/proverb-task";
-import { scheduleNextDayProverbNotification } from "../../src/notifications/daily-proverb-notification";
+import { scheduleProverbNotification } from "../../src/notifications/daily-proverb-notification";
 import { getNotificationsEnabled } from "../../src/notifications/notification-preferences";
 import { updateProverbWidget } from "../../src/widgets";
 
@@ -44,7 +44,7 @@ jest.mock("../../src/widgets", () => ({
 }));
 
 jest.mock("../../src/notifications/daily-proverb-notification", () => ({
-  scheduleNextDayProverbNotification: jest.fn(),
+  scheduleProverbNotification: jest.fn(),
 }));
 jest.mock("../../src/notifications/notification-preferences", () => ({
   getNotificationsEnabled: jest.fn(),
@@ -111,9 +111,9 @@ describe("initializeBackgroundTask", () => {
   const mockUpdateProverbWidget = updateProverbWidget as jest.MockedFunction<
     typeof updateProverbWidget
   >;
-  const mockScheduleNextDayProverbNotification =
-    scheduleNextDayProverbNotification as jest.MockedFunction<
-      typeof scheduleNextDayProverbNotification
+  const mockScheduleProverbNotification =
+    scheduleProverbNotification as jest.MockedFunction<
+      typeof scheduleProverbNotification
     >;
 
   const mockProverb = {
@@ -153,7 +153,7 @@ describe("initializeBackgroundTask", () => {
 
     expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
     expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
-    expect(mockScheduleNextDayProverbNotification).not.toHaveBeenCalled();
+    expect(mockScheduleProverbNotification).not.toHaveBeenCalled();
     expect(mockSetItem).toHaveBeenCalledWith(
       "background_task_initialized",
       "true",
@@ -184,9 +184,9 @@ describe("background task definition", () => {
   const mockUpdateProverbWidget = updateProverbWidget as jest.MockedFunction<
     typeof updateProverbWidget
   >;
-  const mockScheduleNextDayProverbNotification =
-    scheduleNextDayProverbNotification as jest.MockedFunction<
-      typeof scheduleNextDayProverbNotification
+  const mockScheduleProverbNotification =
+    scheduleProverbNotification as jest.MockedFunction<
+      typeof scheduleProverbNotification
     >;
   const mockGetNotificationsEnabled =
     getNotificationsEnabled as jest.MockedFunction<
@@ -236,7 +236,7 @@ describe("background task definition", () => {
 
       expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
       expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
-      expect(mockScheduleNextDayProverbNotification).toHaveBeenCalledWith(
+      expect(mockScheduleProverbNotification).toHaveBeenCalledWith(
         mockProverb,
       );
     });
@@ -254,7 +254,7 @@ describe("background task definition", () => {
 
       expect(mockGetProverbForTheDay).toHaveBeenCalledTimes(1);
       expect(mockUpdateProverbWidget).toHaveBeenCalledWith(mockProverb);
-      expect(mockScheduleNextDayProverbNotification).not.toHaveBeenCalled();
+      expect(mockScheduleProverbNotification).not.toHaveBeenCalled();
     });
   });
 

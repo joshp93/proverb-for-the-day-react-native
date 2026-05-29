@@ -37,7 +37,14 @@ jest.mock("../../src/api/auth", () => ({
   signIn: jest.fn(),
 }));
 
+jest.mock("../../src/api/account", () => ({
+  createAccountRecord: jest.fn(),
+}));
+
 const mockSignIn = apiSignIn as jest.MockedFunction<typeof apiSignIn>;
+const { createAccountRecord: mockCreateAccountRecord } = jest.requireMock(
+  "../../src/api/account",
+);
 
 describe("SignIn", () => {
   beforeEach(() => {
@@ -76,6 +83,7 @@ describe("SignIn", () => {
     });
 
     expect(mockRefreshUser).toHaveBeenCalled();
+    expect(mockCreateAccountRecord).toHaveBeenCalled();
     expect(mockReplace).toHaveBeenCalledWith("/");
   });
 
@@ -94,6 +102,7 @@ describe("SignIn", () => {
     });
 
     expect(mockRefreshUser).toHaveBeenCalled();
+    expect(mockCreateAccountRecord).toHaveBeenCalled();
     expect(mockDispatch).toHaveBeenCalled();
   });
 

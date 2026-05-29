@@ -7,6 +7,7 @@ import {
 import { StackActions } from "expo-router/build/react-navigation";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { createAccountRecord } from "../src/api/account";
 import { signIn } from "../src/api/auth";
 import { useAuth } from "../src/auth/auth-context";
 
@@ -37,6 +38,7 @@ export default function SignIn() {
 
     if (result.success) {
       await refreshUser();
+      await createAccountRecord();
       navigation.dispatch(StackActions.popToTop());
       router.replace("/");
     } else if (result.requiresConfirmation) {

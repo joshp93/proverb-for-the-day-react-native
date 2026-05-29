@@ -11,26 +11,16 @@ import {
 } from "react-native";
 import { useAuth } from "../auth/auth-context";
 
+/**
+ * Slide-in drawer menu from the right side of the header.
+ * Shows navigation items and an email button for the account page
+ * when the user is authenticated.
+ */
 export function HeaderMenu() {
   const [visible, setVisible] = useState(false);
   const [slideAnimation] = useState(new Animated.Value(300));
   const router = useRouter();
   const { user, signOut } = useAuth();
-
-  const handleSignIn = () => {
-    closeMenu();
-    router.push("/email-entry");
-  };
-
-  const handleNotifications = () => {
-    closeMenu();
-    router.push("/notifications");
-  };
-
-  const handleSignOut = () => {
-    closeMenu();
-    signOut();
-  };
 
   const openMenu = () => {
     setVisible(true);
@@ -51,9 +41,23 @@ export function HeaderMenu() {
     });
   };
 
+  const navigateTo = (path: string) => {
+    closeMenu();
+    router.push(path as any);
+  };
+
+  const handleSignOut = () => {
+    closeMenu();
+    signOut();
+  };
+
   return (
     <>
-      <Pressable onPress={openMenu} style={styles.burger}>
+      <Pressable
+        onPress={openMenu}
+        style={styles.burger}
+        testID="burger-button"
+      >
         <View style={styles.burgerLine} />
         <View style={styles.burgerLine} />
         <View style={styles.burgerLine} />
@@ -73,30 +77,41 @@ export function HeaderMenu() {
             ]}
           >
             <View style={styles.menuContent}>
-              {user && (
-                <Text style={styles.userEmail}>{user.email}</Text>
-              )}
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleNotifications}
-              >
-                <Text style={styles.menuText}>Notifications</Text>
-              </TouchableOpacity>
-              {user ? (
+              <View style={styles.topItems}>
+                {user && (
+                  <TouchableOpacity
+                    style={styles.emailButton}
+                    onPress={() => navigateTo("/account")}
+                  >
+                    <Text style={styles.emailButtonText}>{user.email}</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={styles.menuItem}
-                  onPress={handleSignOut}
+                  onPress={() => navigateTo("/notifications")}
                 >
-                  <Text style={styles.menuText}>Sign Out</Text>
+                  <Text style={styles.menuText}>Notifications</Text>
                 </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={handleSignIn}
-                >
-                  <Text style={styles.menuText}>Sign In</Text>
-                </TouchableOpacity>
-              )}
+              </View>
+
+              <View style={styles.bottomSection}>
+                <View style={styles.divider} />
+                {user ? (
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={handleSignOut}
+                  >
+                    <Text style={styles.signOutText}>Sign Out</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => navigateTo("/email-entry")}
+                  >
+                    <Text style={styles.signInText}>Sign In</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           </Animated.View>
         </Pressable>
@@ -129,24 +144,30 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 300,
     backgroundColor: "white",
-    shadowColor: "#000",
-    shadowOffset: { width: -2, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    boxShadow: "-2px 0 4px rgba(0, 0, 0, 0.25)",
   },
   menuContent: {
+    flex: 1,
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
+    justifyContent: "space-between",
   },
-  userEmail: {
+  topItems: {
+    flexShrink: 1,
+  },
+  emailButton: {
+    backgroundColor: "black",
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  emailButtonText: {
+    color: "white",
     fontSize: 14,
-    color: "#666",
-    marginBottom: 12,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    fontWeight: "600",
+    textAlign: "center",
   },
   menuItem: {
     paddingVertical: 16,
@@ -154,6 +175,24 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     color: "#333",
+    fontWeight: "500",
+  },
+  bottomSection: {
+    flexShrink: 0,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#ddd",
+    marginBottom: 8,
+  },
+  signOutText: {
+    fontSize: 16,
+    color: "#dc3545",
+    fontWeight: "500",
+  },
+  signInText: {
+    fontSize: 16,
+    color: "#007AFF",
     fontWeight: "500",
   },
 });

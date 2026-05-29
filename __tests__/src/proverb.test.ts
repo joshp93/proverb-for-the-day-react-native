@@ -40,6 +40,33 @@ describe("Proverb Schema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("should accept an optional citation field", () => {
+    const proverbWithCitation = {
+      ref: "Proverbs 3:5",
+      proverb: "Trust in the LORD with all your heart",
+      citation: "King James Version (KJV)",
+    };
+
+    const result = ProverbSchema.safeParse(proverbWithCitation);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.citation).toBe("King James Version (KJV)");
+    }
+  });
+
+  it("should parse successfully without citation", () => {
+    const proverbWithoutCitation = {
+      ref: "Proverbs 3:5",
+      proverb: "Trust in the LORD with all your heart",
+    };
+
+    const result = ProverbSchema.safeParse(proverbWithoutCitation);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.citation).toBeUndefined();
+    }
+  });
+
   it("should infer the correct type", () => {
     const validProverb = {
       ref: "Proverbs 3:5",
@@ -47,7 +74,7 @@ describe("Proverb Schema", () => {
     };
 
     const parsed = ProverbSchema.parse(validProverb);
-    const inferred: { ref: string; proverb: string } = parsed;
+    const inferred: { ref: string; proverb: string; citation?: string } = parsed;
     expect(inferred.ref).toBe(validProverb.ref);
     expect(inferred.proverb).toBe(validProverb.proverb);
   });

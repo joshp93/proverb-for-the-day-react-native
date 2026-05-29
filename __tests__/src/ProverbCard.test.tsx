@@ -35,4 +35,21 @@ describe("ProverbCard", () => {
 
     expect(getByText("Trust in the LORD with all your heart")).toBeTruthy();
   });
+
+  it("should render citation when provided", () => {
+    const proverbWithCitation: Proverb = {
+      ...mockProverb,
+      citation: "King James Version (KJV)",
+    };
+
+    const { getByText } = render(<ProverbCard proverb={proverbWithCitation} />);
+
+    expect(getByText("King James Version (KJV)")).toBeTruthy();
+  });
+
+  it("should not render citation when not provided", () => {
+    const { queryByText } = render(<ProverbCard proverb={mockProverb} />);
+
+    expect(queryByText("King James Version (KJV)")).toBeNull();
+  });
 });

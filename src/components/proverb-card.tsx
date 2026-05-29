@@ -21,6 +21,9 @@ export function ProverbCard({
       <Text style={compact ? styles.compactText : styles.proverbText}>
         {proverb.proverb}
       </Text>
+      {proverb.citation && (
+        <Text style={styles.citationText}>{proverb.citation}</Text>
+      )}
     </View>
   );
 }
@@ -34,10 +37,18 @@ const styles = StyleSheet.create({
   },
   proverbText: {
     fontSize: 40,
-    fontStyle: "italic",
+    fontStyle: "normal",
+    lineHeight: 42,
   },
   compactText: {
     fontSize: 18,
-    fontStyle: "italic",
+    fontStyle: "normal",
+    lineHeight: 20,
+  },
+  citationText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: "#666",
+    textAlign: "left",
   },
 });

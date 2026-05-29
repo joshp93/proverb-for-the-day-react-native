@@ -57,6 +57,7 @@
     "voltra": "^1.4.0"
   },
   "devDependencies": {
+    "@react-native-community/datetimepicker": "^9.1.0",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "29.5.14",
     "@types/node": "^25.7.0",

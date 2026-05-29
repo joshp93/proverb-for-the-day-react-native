@@ -1,3 +1,4 @@
+import { LEMUEL_API_BASE_URL } from "../../src/api/constants";
 import { getProverbForTheDay } from "../../src/api/proverbs";
 
 global.fetch = jest.fn();
@@ -24,9 +25,8 @@ describe("getProverbForTheDay", () => {
     expect(result).toEqual(mockProverb);
     expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        method: "GET",
-      }),
+      expect.stringContaining(LEMUEL_API_BASE_URL),
+      { method: "GET" },
     );
   });
 
@@ -57,11 +57,8 @@ describe("getProverbForTheDay", () => {
     await getProverbForTheDay();
 
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        url: expect.stringContaining(
-          "8ndcvtnwf1.execute-api.eu-west-2.amazonaws.com",
-        ),
-      }),
+      expect.stringContaining(LEMUEL_API_BASE_URL),
+      { method: "GET" },
     );
   });
 });

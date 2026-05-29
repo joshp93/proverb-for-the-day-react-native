@@ -46,12 +46,18 @@ The app displays a home screen widget showing today's proverb, automatically upd
 
 # Push Notifications
 
-The app uses `expo-notifications` to schedule daily push notifications to remind the user to read the proverb of the day.
+The app uses `expo-notifications` to schedule daily push notifications. Users can configure when notifications are sent via two modes:
+
+- **Random time within a window** — Choose a start and end hour; the notification fires at a random time within that window each day.
+- **Specific time** — Choose an exact hour and minute; the notification fires at that time every day.
+
+If the configured time has not yet passed for the current day, the notification schedules for today; otherwise it schedules for tomorrow. Preferences are persisted in AsyncStorage.
 
 ## Key Files
-- `src/notifications/daily-proverb-notification.ts` - Logic for scheduling daily proverb notifications.
-- `src/notifications/notification-preferences.ts` - Logic for storing and retrieving notification preferences.
-- `src/utils/battery-optimization.ts` - Logic for disabling battery optimization to ensure notifications are delivered.
+- `src/notifications/daily-proverb-notification.ts` — Scheduling logic (`scheduleProverbNotification`, `resolveScheduleDate`, `getRandomTimeInWindow`).
+- `src/notifications/notification-preferences.ts` — Preference storage (`notification_mode`, `random_window_start`, `random_window_end`, `scheduled_time_hour`, `scheduled_time_minute`).
+- `app/notifications.tsx` — Settings UI with animated accordion sections (ExpandableSection with vertical Animated.timing).
+- `src/utils/battery-optimization.ts` — Logic for disabling battery optimization to ensure notifications are delivered.
 
 # Daily Proverbs
 

@@ -76,8 +76,8 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/icon.png",
-          "color": "#E6F4FE"
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#000000"
         }
       ],
       "expo-font",

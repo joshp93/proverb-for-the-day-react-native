@@ -20,39 +20,41 @@ export const ProverbWidget = ({ proverb }: ProverbWidgetProps) => (
     {proverb ? (
       <VoltraAndroid.Column
         verticalAlignment="center-vertically"
-        horizontalAlignment="center-horizontally"
+        horizontalAlignment="start"
       >
         <VoltraAndroid.Text
           style={{
-            fontSize: 14,
+            fontSize: 18,
             fontWeight: "bold",
             color: "#333333",
             fontFamily: "nunito_400regular",
           }}
         >
-          Daily Proverb
+          {proverb.ref}
         </VoltraAndroid.Text>
         <VoltraAndroid.Text
           style={{
             fontSize: 18,
             color: "#1a1a1a",
-            textAlign: "center",
-            marginTop: 8,
-            fontFamily: "nunito_400regular_italic",
+            marginTop: 12,
+            fontFamily: "nunito_400regular",
           }}
         >
           {proverb.proverb}
         </VoltraAndroid.Text>
-        <VoltraAndroid.Text
-          style={{
-            fontSize: 12,
-            color: "#666666",
-            marginTop: 8,
-            fontFamily: "nunito_400regular",
-          }}
-        >
-          {proverb.ref}
-        </VoltraAndroid.Text>
+        {proverb.citation && (
+          <VoltraAndroid.Text
+            style={{
+              fontSize: 10,
+              color: "#666666",
+              marginTop: 15,
+              textAlign: "left",
+              fontFamily: "nunito_400regular",
+            }}
+          >
+            {proverb.citation}
+          </VoltraAndroid.Text>
+        )}
       </VoltraAndroid.Column>
     ) : (
       <VoltraAndroid.Column

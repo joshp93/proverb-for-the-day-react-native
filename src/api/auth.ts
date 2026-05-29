@@ -2,6 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import { clearTokens, getTokens, saveTokens } from "../auth/token-storage";
 import { isTokenExpired, isTokenExpiringSoon } from "../auth/token-utils";
 import * as cognito from "./cognito";
+import { LEMUEL_API_BASE_URL } from "./constants";
 
 /**
  * A simplified user object for use within the application.
@@ -22,16 +23,14 @@ export async function checkUserExists(email: string): Promise<boolean> {
   try {
     console.log("[Auth API] Checking if user exists:", email);
     const response = await fetch(
-      new Request(
-        "https://vua1tbtwtd.execute-api.eu-west-2.amazonaws.com/prod/auth/check-user-exists",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
+      `${LEMUEL_API_BASE_URL}/auth/check-user-exists`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ),
+        body: JSON.stringify({ email }),
+      },
     );
     const data = (await response.json()) as { exists: boolean };
     console.log("[Auth API] User exists:", data.exists);

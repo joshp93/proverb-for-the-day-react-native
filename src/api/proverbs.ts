@@ -1,14 +1,16 @@
 import { ProverbSchema } from "../models/proverb";
+import { LEMUEL_API_BASE_URL } from "./constants";
 
+/**
+ * Fetches today's proverb for the given Bible version.
+ * @param version Optional Bible version string (defaults to "kjv").
+ * @returns A parsed Proverb object.
+ * @throws On network failure or invalid response data.
+ */
 export const getProverbForTheDay = (version?: string) =>
-  fetch(
-    new Request(
-      `https://vua1tbtwtd.execute-api.eu-west-2.amazonaws.com/prod/${version || "kjv"}`,
-      {
-        method: "GET",
-      },
-    ),
-  )
+  fetch(`${LEMUEL_API_BASE_URL}/${version || "kjv"}`, {
+    method: "GET",
+  })
     .then((res) => res.json())
     .then((data) => ProverbSchema.parse(data))
     .catch((error) => {
