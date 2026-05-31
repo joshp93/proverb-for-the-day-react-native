@@ -1,6 +1,6 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View, StyleSheet } from "react-native";
 import { ProverbCard } from "../src/components/proverb-card";
 import { Text } from "../src/components/themed-text";
 import { VersionDropdown } from "../src/components/version-dropdown";
@@ -8,6 +8,8 @@ import { useProverbForTheDay } from "../src/hooks/useProverbForTheDay";
 import { updateProverbWidget } from "../src/widgets";
 
 export default function Index() {
+  const router = useRouter();
+
   const {
     proverb,
     loading,
@@ -26,7 +28,7 @@ export default function Index() {
   const title = proverb && !loading && !error ? proverb.ref : "Daily Proverb";
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <Stack.Screen
         options={{
           headerTitle: () => (
@@ -75,6 +77,29 @@ export default function Index() {
         {error && <Text>{error}</Text>}
         {proverb && !loading && !error && <ProverbCard proverb={proverb} />}
       </ScrollView>
-    </>
+      <Pressable
+        style={styles.meditationButton}
+        onPress={() => router.push("/meditation")}
+      >
+        <Text style={styles.meditationButtonText}>Start Meditation</Text>
+      </Pressable>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  meditationButton: {
+    backgroundColor: "black",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginHorizontal: 16,
+    marginBottom: 36,
+  },
+  meditationButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "Nunito_400Regular",
+  },
+});

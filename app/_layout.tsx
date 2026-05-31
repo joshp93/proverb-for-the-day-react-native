@@ -73,6 +73,7 @@ function AppContent() {
         <Stack.Screen name="sign-up" />
         <Stack.Screen name="confirm-sign-up" />
         <Stack.Screen name="notifications" />
+        <Stack.Screen name="meditation" />
         <Stack.Screen name="account" />
       </Stack>
     </KeyboardAvoidingView>

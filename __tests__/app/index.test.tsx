@@ -7,10 +7,12 @@ jest.mock("../../src/hooks/useProverbForTheDay");
 jest.mock("../../src/widgets", () => ({
   updateProverbWidget: jest.fn(),
 }));
+const mockRouterPush = jest.fn();
 jest.mock("expo-router", () => ({
   Stack: {
     Screen: () => null,
   },
+  useRouter: () => ({ push: mockRouterPush }),
 }));
 
 const mockUseProverbForTheDay = useProverbForTheDay as jest.MockedFunction<
