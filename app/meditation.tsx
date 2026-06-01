@@ -45,7 +45,7 @@ uniform float u_time;
 
 const float kIterations = 12.0;
 const float kFormuparam = 0.53;
-const float kVolsteps = 14.0;
+const float kVolsteps = 10.0;
 const float kStepsize = 0.1;
 const float kZoom = 0.800;
 const float kTile = 0.850;
