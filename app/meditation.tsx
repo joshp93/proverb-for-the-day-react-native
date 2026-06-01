@@ -1,93 +1,122 @@
-import { useMemo, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { Stack, useRouter } from "expo-router";
-import {
-  Skia,
-  Canvas,
-  Fill,
-  Shader,
-  useCanvasSize,
-  type Uniforms,
-} from "@shopify/react-native-skia";
+import { Canvas, Path, Skia, useCanvasRef } from "@shopify/react-native-skia";
+import { Stack } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { LayoutChangeEvent, Pressable, StyleSheet, View } from "react-native";
+import { useSharedValue, withTiming } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
+import { Text } from "../src/components/themed-text";
+import { useProverbForTheDay } from "../src/hooks/useProverbForTheDay";
 
 const DURATION_MS = 60000;
+const INSET = 20;
+const CORNER_RADIUS = 30;
+const STROKE_WIDTH = 8;
+const ACCENT_COLOR = "rgb(25, 51, 179)";
 
-const sksl = `uniform float u_progress;
-uniform vec2 u_resolution;
-
-const float PI = 3.14159265;
-const vec3 RING_COLOR = vec3(0.1, 0.2, 0.7);
-const float INTENSITY = 0.008;
-const float FADE_WIDTH = 0.06;
-
-half4 main(vec2 xy) {
-    vec2 uv = xy / u_resolution;
-    float aspect = u_resolution.x / u_resolution.y;
-    uv = (uv - vec2(0.5)) * vec2(aspect, 1.0);
-
-    float ringRadius = 0.35 * min(1.0, aspect);
-    float arcEnd = 2.0 * PI * u_progress;
-
-    float dist = length(uv);
-    float distToRing = abs(dist - ringRadius);
-    float radialGlow = 1.0 / (distToRing + 0.003);
-
-    float pixelAngle = atan(-uv.y, uv.x);
-    float clockwiseFromTop = PI / 2.0 - pixelAngle;
-    if (clockwiseFromTop < 0.0) clockwiseFromTop += 2.0 * PI;
-
-    float beginFade = max(arcEnd - FADE_WIDTH, 0.0);
-    float angularMask = 1.0 - smoothstep(beginFade, arcEnd + 0.0001, clockwiseFromTop);
-    angularMask = mix(angularMask, 1.0, step(1.0, u_progress));
-
-    float distMask = 1.0 - smoothstep(0.01, 0.12, distToRing);
-
-    vec3 color = RING_COLOR * radialGlow * angularMask * distMask * INTENSITY;
-    return half4(color, 1.0);
-}`;
+const glowLayers = [
+  { w: 80,  a: 0.015 },
+  { w: 72,  a: 0.018 },
+  { w: 65,  a: 0.021 },
+  { w: 59,  a: 0.026 },
+  { w: 54,  a: 0.031 },
+  { w: 48,  a: 0.037 },
+  { w: 44,  a: 0.044 },
+  { w: 40,  a: 0.052 },
+  { w: 36,  a: 0.062 },
+  { w: 32,  a: 0.074 },
+  { w: 29,  a: 0.089 },
+  { w: 27,  a: 0.106 },
+  { w: 24,  a: 0.127 },
+  { w: 22,  a: 0.152 },
+  { w: 20,  a: 0.181 },
+  { w: 18,  a: 0.217 },
+  { w: 16,  a: 0.259 },
+  { w: 15,  a: 0.309 },
+  { w: 13,  a: 0.37 },
+  { w: 12,  a: 0.442 },
+  { w: 11,  a: 0.528 },
+  { w: 10,  a: 0.63 },
+  { w: 9,  a: 0.753 },
+  { w: STROKE_WIDTH, a: 0.9 },
+];
 
 export default function MeditationScreen() {
-  const router = useRouter();
-  const [progress, setProgress] = useState(0);
-  const { ref, size: canvasSize } = useCanvasSize();
+  const [isComplete, setIsComplete] = useState(false);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const ref = useCanvasRef();
+  const { proverb, loading } = useProverbForTheDay();
+  const progress = useSharedValue(0);
 
-  const effect = useMemo(() => Skia.RuntimeEffect.Make(sksl)!, []);
-
-  useEffect(() => {
-    const start = performance.now();
-    let frameId: number;
-
-    const tick = () => {
-      const elapsed = performance.now() - start;
-      setProgress(Math.min(elapsed / DURATION_MS, 1));
-      if (elapsed < DURATION_MS) {
-        frameId = requestAnimationFrame(tick);
-      }
-    };
-    frameId = requestAnimationFrame(tick);
-
-    return () => cancelAnimationFrame(frameId);
+  const handleLayout = useCallback((e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setCanvasSize({ width, height });
   }, []);
 
-  const uniforms: Uniforms = {
-    u_progress: progress,
-    u_resolution: [canvasSize.width, canvasSize.height],
-  };
+  useEffect(() => {
+    progress.value = withTiming(1, { duration: DURATION_MS }, (finished) => {
+      if (finished) scheduleOnRN(setIsComplete, true);
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const outlinePath = useMemo(() => {
+    const { width: W, height: H } = canvasSize;
+    if (W === 0 || H === 0) return null;
+
+    const R = CORNER_RADIUS;
+    const cx = W / 2;
+
+    const d = [
+      `M ${cx} 0`,
+      `L ${W - R} 0`,
+      `A ${R} ${R} 0 0 1 ${W} ${R}`,
+      `L ${W} ${H - R}`,
+      `A ${R} ${R} 0 0 1 ${W - R} ${H}`,
+      `L ${R} ${H}`,
+      `A ${R} ${R} 0 0 1 0 ${H - R}`,
+      `L 0 ${R}`,
+      `A ${R} ${R} 0 0 1 ${R} 0`,
+      `L ${cx} 0`,
+      "Z",
+    ].join(" ");
+
+    return Skia.Path.MakeFromSVGString(d);
+  }, [canvasSize]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={handleLayout}>
       <Stack.Screen
         options={{
-          headerTitle: "Meditation",
-          headerStyle: { backgroundColor: "black" },
-          headerTintColor: "white",
+          headerShown: false,
+          statusBarHidden: true,
         }}
       />
-      <Canvas style={{ flex: 1 }} ref={ref}>
-        <Fill>
-          <Shader source={effect} uniforms={uniforms} />
-        </Fill>
+      <Canvas style={StyleSheet.absoluteFill} ref={ref}>
+        {outlinePath && glowLayers.map(({ w, a }, i) => (
+          <Path
+            key={i}
+            path={outlinePath}
+            style="stroke"
+            strokeWidth={w}
+            color={`rgba(25,51,179,${a})`}
+            start={0}
+            end={progress}
+            strokeCap="round"
+            strokeJoin="round"
+          />
+        ))}
       </Canvas>
+
+      {proverb && !loading && (
+        <View style={styles.textContainer}>
+          <Text style={styles.proverbText}>{proverb.proverb}</Text>
+        </View>
+      )}
+
+      {isComplete && (
+        <Pressable style={styles.captureButton} onPress={() => {}}>
+          <Text style={styles.captureButtonText}>Capture your thoughts...</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -96,5 +125,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+  },
+  textContainer: {
+    position: "absolute",
+    top: INSET + CORNER_RADIUS + 8,
+    left: 0,
+    right: 0,
+    paddingHorizontal: INSET + CORNER_RADIUS,
+  },
+  proverbText: {
+    color: "#b8c8ff",
+    fontSize: 24,
+    lineHeight: 34,
+    textAlign: "left",
+  },
+  captureButton: {
+    position: "absolute",
+    bottom: 36,
+    left: INSET,
+    right: INSET,
+    backgroundColor: ACCENT_COLOR,
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  captureButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "Nunito_400Regular",
   },
 });
