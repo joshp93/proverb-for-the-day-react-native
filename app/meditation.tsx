@@ -1,4 +1,4 @@
-import { Canvas, Path, Skia, useCanvasRef } from "@shopify/react-native-skia";
+import { Canvas, Fill, Path, Shader, Skia, useCanvasSize, useClock, type Uniforms } from "@shopify/react-native-skia";
 import { Stack } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LayoutChangeEvent, Pressable, StyleSheet, View } from "react-native";
@@ -40,19 +40,85 @@ const glowLayers = [
   { w: STROKE_WIDTH, a: 0.9 },
 ];
 
+const sksl = `uniform float2 u_resolution;
+uniform float u_time;
+
+const float kIterations = 12.0;
+const float kFormuparam = 0.53;
+const float kVolsteps = 14.0;
+const float kStepsize = 0.1;
+const float kZoom = 0.800;
+const float kTile = 0.850;
+const float kSpeed = 0.010;
+const float kBrightness = 0.0015;
+const float kDarkmatter = 0.450;
+const float kDistfading = 0.730;
+const float kSaturation = 0.850;
+
+half4 main(vec2 xy) {
+    vec2 uv = xy / u_resolution - 0.5;
+    uv.y *= u_resolution.y / u_resolution.x;
+    vec3 dir = vec3(uv * kZoom, 1.0);
+    float time = u_time * kSpeed + 0.25;
+
+    float a1 = 0.5;
+    float a2 = 0.8;
+    mat2 rot1 = mat2(cos(a1), sin(a1), -sin(a1), cos(a1));
+    mat2 rot2 = mat2(cos(a2), sin(a2), -sin(a2), cos(a2));
+    dir.xz *= rot1;
+    dir.xy *= rot2;
+    vec3 from = vec3(1.0, 0.5, 0.5);
+    from += vec3(time * 2.0, time, -2.0);
+    from.xz *= rot1;
+    from.xy *= rot2;
+
+    float s = 0.1;
+    float fade = 1.0;
+    vec3 v = vec3(0.0);
+    for (float r = 0.0; r < kVolsteps; r++) {
+        vec3 p = from + s * dir * 0.5;
+        p = abs(vec3(kTile) - mod(p, vec3(kTile * 2.0)));
+        float pa = 0.0;
+        float a = 0.0;
+        for (float i = 0.0; i < kIterations; i++) {
+            p = abs(p) / dot(p, p) - kFormuparam;
+            a += abs(length(p) - pa);
+            pa = length(p);
+        }
+        float dm = max(0.0, kDarkmatter - a * a * 0.001);
+        a *= a * a;
+        if (r > 6.0) fade *= 1.0 - dm;
+        v += fade;
+        v += vec3(s, s * s, s * s * s * s) * a * kBrightness * fade;
+        fade *= kDistfading;
+        s += kStepsize;
+    }
+    v = mix(vec3(length(v)), v, kSaturation);
+    return half4(v * 0.01, 1.0);
+}`;
+
 export default function MeditationScreen() {
   const [isComplete, setIsComplete] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
-  const ref = useCanvasRef();
+  const { ref } = useCanvasSize();
   const { proverb, loading } = useProverbForTheDay();
   const progress = useSharedValue(0);
   const textOpacity = useSharedValue(0);
   const animationStarted = useRef(false);
 
+  const resolution = useSharedValue([0, 0]);
   const handleLayout = useCallback((e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
     setCanvasSize({ width, height });
+    resolution.value = [width, height];
   }, []);
+
+  const effect = useMemo(() => Skia.RuntimeEffect.Make(sksl), []);
+  const clock = useClock();
+  const uniforms = useDerivedValue<Uniforms>(() => ({
+    u_time: clock.value / 1000,
+    u_resolution: resolution.value,
+  }));
 
   useEffect(() => {
     if (!animationStarted.current && !loading && proverb) {
@@ -108,6 +174,11 @@ export default function MeditationScreen() {
         }}
       />
       <Canvas style={StyleSheet.absoluteFill} ref={ref}>
+        {effect && uniforms && (
+          <Fill>
+            <Shader source={effect} uniforms={uniforms} />
+          </Fill>
+        )}
         {outlinePath && segments.map((seg, si) =>
           glowLayers.map(({ w, a }, li) => (
             <Path
